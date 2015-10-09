@@ -5,7 +5,7 @@ class Edge:
         self.weight    = float( weight )
         
         self.pheromone = 0
-        self.visibility = 1. / self.weight
+        self.visibility = (self.weight / max( self.pheromone, 1))**2
 #endclass
 
 class Node:

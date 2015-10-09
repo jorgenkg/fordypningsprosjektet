@@ -1,7 +1,7 @@
 import random
 
 class Ant:
-    def __init__(self, graph, alpha = 1, beta = 1 ):
+    def __init__(self, graph, alpha = 1, beta = 3 ):
         self.graph = graph
         self.alpha = alpha
         self.beta = beta
@@ -39,7 +39,7 @@ class Ant:
     
     def deposite_pheromone(self, value = None ):
         for edge in self.traveled_edges:
-            edge.pheromone += value if value else 1. / edge.weight
+            edge.pheromone += value if value else 1
     #end
     
     def travel_cost(self, ):
