@@ -9,23 +9,28 @@ class Ant:
     
     def move(self, ):
         self.traveled_edges = [] # tabu list
-        self.current_position = self.graph.start_node
         
-        while not self.current_position in self.graph.goal_nodes:
+        self.move_from = [ self.graph.start_node ]
+        found_goals = []
+        
+        n_edges = sum(1 for node in self.graph.nodes.values() for edge in node.edges)
+        
+        while len(self.traveled_edges) < n_edges / 2:
             edge = self.choose_edge()
             self.traveled_edges.append( edge )
-            self.current_position = edge.sink
-        
-        
+            self.move_from.append( edge.sink )
+            
+            if edge.sink in self.graph.goal_nodes:
+                found_goals.append( edge.sink )
     #end
     
     def choose_edge(self, ):
         valid_next_nodes = [ edge
-                            for edge in self.current_position.edges
+                            for node in self.move_from
+                            for edge in node.edges
                             if edge not in self.traveled_edges ]
         
-        assert len(valid_next_nodes), \
-            "No valid paths"
+        assert len(valid_next_nodes), "No valid paths"
         
         divisor = sum( 
                     edge.pheromone**self.alpha * edge.visibility**self.beta 
@@ -42,8 +47,12 @@ class Ant:
             edge.pheromone += value if value else 1
     #end
     
+    def flowed(self, ):
+        return self.graph.max_flow( self.graph.start_node, self.graph.goal_nodes[0], self.traveled_edges )
+    #end
+    
     def travel_cost(self, ):
-        return sum( edge.weight for edge in self.traveled_edges )
+        return sum( edge.cost for edge in self.traveled_edges )
 #endclass
 
 
@@ -56,3 +65,16 @@ def weighted_choice( choices ):
       if upto + weight > bounds:
          return option
       upto += weight
+#end
+
+
+def adjust_pheromones( graph, cost, evaporation_rate, p_best = 0.3 ):
+    n = len(graph.nodes.keys())
+    
+    max_pheromone = 1. / (evaporation_rate * cost)
+    min_pheromone = max_pheromone * (1. - p_best**(1. / n)) / ((n/2.-1)*p_best**(1. / n))
+    
+    for name, node in graph.nodes.items():
+        for edge in node.edges:
+            edge.pheromone = min( max_pheromone, max( edge.pheromone, min_pheromone ))
+    

@@ -1,17 +1,20 @@
 from graph import Graph
-from ANT import Ant
+from ANT import Ant, adjust_pheromones
 import itertools
+import copy
 
 evaporation_rate = 0.1
+Q = 2.
 
 graph = Graph( "graph.txt" )
 
 ants = [ Ant( graph ) for _ in xrange( 5 ) ]
 
+current_best_solution = ( -1, None )
 
 for name, node in graph.nodes.items():
     for edge in node.edges:
-        edge.pheromone = 1000
+        edge.pheromone = 1000000
 
 
 for i in xrange( 50 ):
@@ -22,12 +25,18 @@ for i in xrange( 50 ):
         for edge in node.edges:
             edge.pheromone *= (1 - evaporation_rate)
     
-    for ant in ants:
-        ant.deposite_pheromone()
-    #groupbysink = itertools.groupby(ants, lambda ant: ant.current_position)
-    #
-    #for goal, discoverers in groupbysink:
-    #    best_ant = max( discoverers, key=lambda ant: ant.travel_cost() )
-    #    best_ant.deposite_pheromone()
+    
+    best_ant = max( ants, key = lambda ant: ant.flowed() )
+    flowed = ant.flowed()
+    if flowed:
+        best_ant.deposite_pheromone( Q*flowed )
+        adjust_pheromones( graph, flowed, evaporation_rate )
+    
+    if flowed > current_best_solution[0]:
+        current_best_solution = ( flowed, copy.deepcopy(graph), copy.deepcopy(best_ant) )
+    
+    print i, current_best_solution[0]
 
-graph.plotdot()
+print "Flow:", current_best_solution[0]
+graph = current_best_solution[1]
+graph.plotdot( current_best_solution[2] )
