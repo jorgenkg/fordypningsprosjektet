@@ -1,42 +1,58 @@
 import random
 
 class Ant:
-    def __init__(self, graph, alpha = 1, beta = 1 ):
+    def __init__(self, graph, alpha = 1, beta = 0.1 ):
         self.graph = graph
         self.alpha = alpha
         self.beta = beta
     #end
     
     def move(self, ):
-        self.traveled_edges = [] # tabu list
+        self.traveled_edges = []
         
-        self.move_from = [ self.graph.start_node ]
-        found_goals = []
+        self.current_position = self.graph.start_node
         
-        n_edges = sum(1 for node in self.graph.nodes.values() for edge in node.edges)
-        
-        while len(found_goals) != len(self.graph.goal_nodes) and len(self.traveled_edges) < n_edges / 2:
-            edge = self.choose_edge()
-            self.traveled_edges.append( edge )
-            self.move_from.append( edge.sink )
+        while True:
+            if self.current_position.valid_edges():
+                edge = self.choose_edge()
             
-            if edge.sink in self.graph.goal_nodes:
-                found_goals.append( edge.sink )
+                self.traveled_edges.append( edge )
+                edge.current_flow_limit -= 1
+                
+                if edge.sink in self.graph.goal_nodes:
+                    self.current_position = self.graph.start_node
+                else:
+                    self.current_position = edge.sink
+            else:
+                self.backtrack_until_valid()
+                if self.current_position == self.graph.start_node and not self.current_position.valid_edges():
+                    break
+        
+        
+        
+        self.flow_through = sum( 1
+                                 for edge in self.traveled_edges
+                                 if edge.sink in self.graph.goal_nodes )
+        
+    #end
+    
+    def backtrack_until_valid(self, ):
+        while not self.current_position.valid_edges() and self.current_position != self.graph.start_node:
+            previous_edge = self.traveled_edges.pop()
+            previous_edge.usable = False
+            self.current_position = previous_edge.source
     #end
     
     def choose_edge(self, ):
-        valid_edges = [ edge
-                            for node in self.move_from
-                            for edge in node.edges
-                            if edge not in self.traveled_edges ]
+        valid_edges = self.current_position.valid_edges()
         
         assert len(valid_edges), "No valid paths"
         
         divisor = sum( 
-                    edge.pheromone**self.alpha * edge.visibility**self.beta 
+                    edge.pheromone**self.alpha * edge.current_flow_limit**self.beta 
                     for edge in valid_edges)
         
-        s = [ (edge.pheromone**self.alpha * edge.visibility**self.beta / divisor, edge) 
+        s = [ (edge.pheromone**self.alpha * edge.current_flow_limit**self.beta / divisor, edge) 
                 for edge in valid_edges ]
         
         return weighted_choice( s )
@@ -47,14 +63,8 @@ class Ant:
             edge.pheromone += quantity
     #end
     
-    def flowed(self, ):
-        source = self.graph.start_node
-        sink   = self.graph.goal_nodes[0]
-        return self.graph.max_flow( source, sink, self.traveled_edges )
-    #end
-    
     def travel_cost(self, ):
-        return sum( edge.cost for edge in self.traveled_edges )
+        return len(self.traveled_edges)
 #endclass
 
 
@@ -70,7 +80,7 @@ def weighted_choice( choices ):
 #end
 
 
-def adjust_pheromones( graph, cost, evaporation_rate, p_best = 0.3 ):
+def adjust_pheromones( graph, cost, evaporation_rate, p_best = 0.5 ):
     n = len(graph.nodes.keys())
     
     max_pheromone = 1. / (evaporation_rate * cost)
