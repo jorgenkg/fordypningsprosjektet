@@ -1,7 +1,7 @@
 import random
 
 class Ant:
-    def __init__(self, graph, alpha = 1, beta = 3 ):
+    def __init__(self, graph, alpha = 1, beta = 1 ):
         self.graph = graph
         self.alpha = alpha
         self.beta = beta
@@ -15,7 +15,7 @@ class Ant:
         
         n_edges = sum(1 for node in self.graph.nodes.values() for edge in node.edges)
         
-        while len(self.traveled_edges) < n_edges / 2:
+        while len(found_goals) != len(self.graph.goal_nodes) and len(self.traveled_edges) < n_edges / 2:
             edge = self.choose_edge()
             self.traveled_edges.append( edge )
             self.move_from.append( edge.sink )
@@ -25,30 +25,32 @@ class Ant:
     #end
     
     def choose_edge(self, ):
-        valid_next_nodes = [ edge
+        valid_edges = [ edge
                             for node in self.move_from
                             for edge in node.edges
                             if edge not in self.traveled_edges ]
         
-        assert len(valid_next_nodes), "No valid paths"
+        assert len(valid_edges), "No valid paths"
         
         divisor = sum( 
                     edge.pheromone**self.alpha * edge.visibility**self.beta 
-                    for edge in valid_next_nodes)
+                    for edge in valid_edges)
         
         s = [ (edge.pheromone**self.alpha * edge.visibility**self.beta / divisor, edge) 
-                for edge in valid_next_nodes ]
+                for edge in valid_edges ]
         
         return weighted_choice( s )
     #end
     
-    def deposite_pheromone(self, value = None ):
+    def deposite_pheromone(self, quantity ):
         for edge in self.traveled_edges:
-            edge.pheromone += value if value else 1
+            edge.pheromone += quantity
     #end
     
     def flowed(self, ):
-        return self.graph.max_flow( self.graph.start_node, self.graph.goal_nodes[0], self.traveled_edges )
+        source = self.graph.start_node
+        sink   = self.graph.goal_nodes[0]
+        return self.graph.max_flow( source, sink, self.traveled_edges )
     #end
     
     def travel_cost(self, ):

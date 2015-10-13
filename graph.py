@@ -11,25 +11,25 @@ class EdgeBase:
 #endclass
 
 class Edge( EdgeBase ):
-    def __init__(self, source, sink, weight):
+    def __init__(self, source, sink, flow_limit):
         EdgeBase.__init__(self, source, sink)
         
         self.render = True 
         
         self.cost = 1. # float
-        self.weight    = float( weight )
-        self.visibility = 1. / self.cost
+        self.flow_limit    = float( flow_limit )
+        self.visibility = 1. / float( flow_limit )
 #endclass
 
 class GhostEdge( EdgeBase ):
-    def __init__(self, source, sink, weight ):
+    def __init__(self, source, sink, flow_limit ):
         EdgeBase.__init__(self, source, sink)
         
-        self.render = False 
+        self.render = True 
         
-        self.weight = 0
+        self.flow_limit = 0
         self.cost = 0. # float
-        self.visibility = 1. / float(weight)
+        self.visibility = 1. / float(flow_limit)
 #endclass
 
 class Node:
@@ -38,9 +38,9 @@ class Node:
         self.name  = str(name)
     #end
     
-    def add_child(self, edge_weight, node ):
-        self.edges.append( Edge( self, node, edge_weight ))
-        self.edges.append( GhostEdge( self, node, edge_weight ))
+    def add_child(self, edge_flow_limit, node ):
+        self.edges.append( Edge( self, node, edge_flow_limit ))
+        self.edges.append( GhostEdge( self, node, edge_flow_limit ))
     #end
 #endclass
 
@@ -52,14 +52,14 @@ class Graph:
         start           = lines.pop(0)[0]
         goals           = lines.pop(0)
         
-        nodeids         = [ x for sourceid, sinkid, weight in lines for x in [sourceid, sinkid] ]
+        nodeids         = [ x for sourceid, sinkid, flow_limit in lines for x in [sourceid, sinkid] ]
         
         self.nodes      = { nodeid : Node( name = nodeid ) for nodeid in nodeids }
         self.start_node = self.nodes[ start ]
         self.goal_nodes = [ self.nodes[ name ] for name in goals ]
         
-        for sourceid, sinkid, weight in lines:
-            self.nodes[ sourceid ].add_child( weight, self.nodes[ sinkid ])
+        for sourceid, sinkid, flow_limit in lines:
+            self.nodes[ sourceid ].add_child( flow_limit, self.nodes[ sinkid ])
     #end
     
     def plotdot(self, ant ):
@@ -78,7 +78,7 @@ class Graph:
         for name, node in self.nodes.items():
             for edge in node.edges:
                 if edge.render:
-                    label = str(edge.weight) + ("" if not edge.key in map(lambda x: x.key, ant.traveled_edges) else " *")
+                    label = str(edge.weight if "weight" in edge.__dict__.keys() else "0") + ("" if not edge.key in map(lambda x: x.key, ant.traveled_edges) else " *")
                     drawing.add_edge(pydot.Edge( name , edge.sink.name, label=label))
 
         drawing.write_pdf('network.pdf')
@@ -89,7 +89,7 @@ class Graph:
             return path
         
         for edge in source.edges:
-            residual = edge.weight - self.flow[ edge.key ]
+            residual = edge.flow_limit - self.flow[ edge.key ]
             if residual > 0 and (edge.key, edge) not in path and edge.key in traveled_edges_keys:
                 result = self.find_path( edge.sink, sink, traveled_edges_keys, path + [(edge.key, edge)]) 
                 if result != None:
@@ -101,7 +101,7 @@ class Graph:
         path = self.find_path(source, sink, traveled_edges_keys)
         
         while path != None:
-            residuals = [edge.weight - self.flow[key] for key, edge in path]
+            residuals = [edge.flow_limit - self.flow[key] for key, edge in path]
             flow = min(residuals)
             for key, edge in path:
                 self.flow[key] += flow

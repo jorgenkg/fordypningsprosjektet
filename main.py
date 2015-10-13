@@ -4,11 +4,11 @@ import itertools
 import copy
 
 evaporation_rate = 0.1
-Q = 2.
+Q = 50
 
 graph = Graph( "graph.txt" )
 
-ants = [ Ant( graph ) for _ in xrange( 5 ) ]
+ants = [ Ant( graph ) for _ in xrange( 6 ) ]
 
 current_best_solution = ( -1, None )
 
@@ -17,7 +17,7 @@ for name, node in graph.nodes.items():
         edge.pheromone = 1000000
 
 
-for i in xrange( 50 ):
+for i in xrange( 100 ):
     for ant in ants:
         ant.move()
     
@@ -29,7 +29,7 @@ for i in xrange( 50 ):
     best_ant = max( ants, key = lambda ant: ant.flowed() )
     flowed = ant.flowed()
     if flowed:
-        best_ant.deposite_pheromone( Q*flowed )
+        best_ant.deposite_pheromone( flowed )
         adjust_pheromones( graph, flowed, evaporation_rate )
     
     if flowed > current_best_solution[0]:
