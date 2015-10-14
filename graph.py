@@ -20,7 +20,7 @@ class Edge( EdgeBase ):
         self.cost = 1. # float
         self.flow_limit    = float( flow_limit )
         
-        self.visibility = self.flow_limit
+        self.visibility = self.flow_limit / self.cost
         self.current_flow_limit = self.flow_limit
     #end
     

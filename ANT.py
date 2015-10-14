@@ -1,7 +1,7 @@
 import random
 
 class Ant:
-    def __init__(self, graph, alpha = 1, beta = 0.1 ):
+    def __init__(self, graph, alpha = 1, beta = 1 ):
         self.graph = graph
         self.alpha = alpha
         self.beta = beta
@@ -33,7 +33,7 @@ class Ant:
         self.flow_through = sum( 1
                                  for edge in self.traveled_edges
                                  if edge.sink in self.graph.goal_nodes )
-        
+        self.travel_cost = sum(edge.cost for edge in set(self.traveled_edges))
     #end
     
     def backtrack_until_valid(self, ):
@@ -62,9 +62,6 @@ class Ant:
         for edge in self.traveled_edges:
             edge.pheromone += quantity
     #end
-    
-    def travel_cost(self, ):
-        return len(self.traveled_edges)
 #endclass
 
 
