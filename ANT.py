@@ -33,7 +33,7 @@ class Ant:
         self.flow_through = sum( 1
                                  for edge in self.traveled_edges
                                  if edge.sink in self.graph.goal_nodes )
-        self.travel_cost = sum(edge.cost for edge in set(self.traveled_edges))
+        self.travel_cost = sum(edge.cost for edge in self.traveled_edges) + len(set(self.traveled_edges))
     #end
     
     def backtrack_until_valid(self, ):
@@ -47,6 +47,7 @@ class Ant:
         valid_edges = self.current_position.valid_edges()
         
         assert len(valid_edges), "No valid paths"
+        
         
         divisor = sum( 
                     edge.pheromone**self.alpha * edge.current_flow_limit**self.beta 

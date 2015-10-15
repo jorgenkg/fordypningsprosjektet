@@ -14,14 +14,15 @@ class EdgeBase:
 #endclass
 
 class Edge( EdgeBase ):
-    def __init__(self, source, sink, flow_limit):
+    def __init__(self, source, sink, flow_limit, cost):
         EdgeBase.__init__(self, source, sink) 
         
-        self.cost = 1. # float
-        self.flow_limit    = float( flow_limit )
+        self.cost               = float(cost)
+        self.flow_limit         = float( flow_limit )
         
-        self.visibility = self.flow_limit / self.cost
+        self.visibility         = 1 / self.cost
         self.current_flow_limit = self.flow_limit
+
     #end
     
     def reset_flow(self, ):
@@ -39,14 +40,15 @@ class Node:
         self.name  = str(name)
     #end
     
-    def add_child(self, edge_flow_limit, node ):
-        self.edges.append( Edge( self, node, edge_flow_limit ))
+    def add_child(self, edge_flow_limit, cost, node ):
+        self.edges.append( Edge( self, node, edge_flow_limit, cost ))
         node.reverse_edges.append( self.edges[-1] )
     #end
     
     def reset_flow(self, ):
         for edge in self.edges:
             edge.current_flow_limit = edge.flow_limit
+            edge.usable = True
     #end
     
     def valid_edges(self, ):
@@ -61,14 +63,14 @@ class Graph:
         start           = lines.pop(0)[0]
         goals           = lines.pop(0)
         
-        nodeids         = [ x for sourceid, sinkid, flow_limit in lines for x in [sourceid, sinkid] ]
+        nodeids         = set( x for sourceid, sinkid, flow_limit, cost in lines for x in [sourceid, sinkid] )
         
         self.nodes      = { nodeid : Node( name = nodeid ) for nodeid in nodeids }
         self.start_node = self.nodes[ start ]
         self.goal_nodes = [ self.nodes[ name ] for name in goals ]
         
-        for sourceid, sinkid, flow_limit in lines:
-            self.nodes[ sourceid ].add_child( flow_limit, self.nodes[ sinkid ])
+        for sourceid, sinkid, flow_limit, cost in lines:
+            self.nodes[ sourceid ].add_child( flow_limit, cost, self.nodes[ sinkid ])
     #end
     
     def plotdot(self, ant ):
@@ -93,7 +95,7 @@ class Graph:
         for name, node in self.nodes.items():
             for edge in node.edges:
                 if edge.render:
-                    label = str(edge.flow_limit) +" [%d]" % lookup[ edge.key ]
+                    label = u"%d of %1.f" % (lookup[ edge.key ], edge.flow_limit)
                     drawing.add_edge(pydot.Edge( name , edge.sink.name, label=label))
 
         drawing.write_pdf('network.pdf')
