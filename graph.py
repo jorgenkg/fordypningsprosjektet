@@ -66,10 +66,10 @@ class Graph:
     def __init__(self, filename ):
         with open( filename, "r") as f:
             lines = map( lambda x: x.strip().split(), f.readlines() )
-            lines = filter(
+            lines = list(filter(
                 lambda line: line[0] != "//",
                 lines
-            )
+            ))
         
         start           = lines.pop(0)[0]
         goals           = lines.pop(0)
