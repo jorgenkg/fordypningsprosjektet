@@ -3,47 +3,53 @@ from ANT import Ant, adjust_pheromones
 import itertools
 import copy
 
-evaporation_rate = 0.3
-Q = 1.
+N_ITERATIONS     = 50
+EVAPORATION_RATE = 0.1
+N_ANTS           = 8
+Q                = 1.
 
-graph = Graph( "graph.txt" )
 
-ants = [ Ant( graph ) for _ in xrange( 5 ) ]
+graph            = Graph( "graph.txt" )
+ants             = [ Ant( graph ) for _ in xrange( N_ANTS ) ]
 
-current_best_solution = ( -1, None )
+
+highest_flow     = -1
+best_ant         = None
+
 
 for name, node in graph.nodes.items():
     for edge in node.edges:
         edge.pheromone = 100000
 
 
-for i in xrange( 20 ):
+for i in xrange( N_ITERATIONS ):
     for ant in ants:
         ant.move()
         graph.reset_flow()
     
     for name, node in graph.nodes.items():
         for edge in node.edges:
-            edge.pheromone *= (1 - evaporation_rate)
+            edge.pheromone *= (1 - EVAPORATION_RATE)
     
-    best_ant = min( ants, key = lambda ant: ant.travel_cost )
+    fittest_ant = min( ants, key = lambda ant: ant.travel_cost )
     
-    if best_ant.flow_through >= current_best_solution[0]:
-        current_best_solution = ( best_ant.flow_through, copy.deepcopy(graph), copy.deepcopy(best_ant) )
-        
-    if best_ant.flow_through > 0:
-        best_ant.deposite_pheromone( Q/best_ant.travel_cost )
-        adjust_pheromones( graph, current_best_solution[2].travel_cost, evaporation_rate )
+    if fittest_ant.flow_through > highest_flow:
+        highest_flow     = fittest_ant.flow_through
+        best_ant         = copy.deepcopy(fittest_ant)
+    elif fittest_ant.flow_through == highest_flow and best_ant.travel_cost > fittest_ant.travel_cost:
+        highest_flow     = fittest_ant.flow_through
+        best_ant         = copy.deepcopy(fittest_ant)
     
-    print [(edge, edge.pheromone) for edge in best_ant.traveled_edges]
+    if fittest_ant.flow_through > 0:
+        fittest_ant.deposite_pheromone( Q/fittest_ant.travel_cost )
+        adjust_pheromones( graph, best_ant.travel_cost, EVAPORATION_RATE )
     
-    print i, best_ant.flow_through, current_best_solution[0]
+    print "* Iteration %d\tCurrent flow: %d\tBest flow: %d" % (i, fittest_ant.flow_through, highest_flow)
 #end
 
 
 
-flow, graph, ant = current_best_solution
 
-print "Flow:", flow, "\tCost:", ant.travel_cost
+print "Flow:", highest_flow, "\tCost:", best_ant.travel_cost
 
-graph.plotdot( ant )
+best_ant.graph.plotdot( best_ant )
