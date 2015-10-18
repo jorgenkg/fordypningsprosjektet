@@ -17,12 +17,6 @@ $(function(){ // on dom ready
           'line-color': '#ddd',
           'target-arrow-color': '#ddd',
           'content': 'data(label)'
-        })
-      .selector('.highlighted')
-        .css({
-          'background-color': '#61bffc',
-          'line-color': '#61bffc',
-          'target-arrow-color': '#61bffc'
         }),
   
     elements: {
@@ -56,37 +50,48 @@ $(function(){ // on dom ready
   });
   
   
-  
-  var nodez = _.map( cy.nodes(), function ( elem ) {
-    return new GraphNode( elem.id(), elem.id()==='a', elem.id()==='f' );
-  });
-  
-  _.each( cy.edges(), function( edge ){
-    var capacity = edge.data().weight;
-    var source = _.find( nodez, function ( node ) {
-      return edge.source().id() === node.id;
+  $("#restartSearch").on("click", function(){
+    var notify = $.notify('<strong>Restarting</strong> the search... ok', {delay: 500});
+    
+    var nodez = _.map( cy.nodes(), function ( elem ) {
+      return new GraphNode( elem.id(), elem.id()==='a', elem.id()==='f' );
     });
-    var sink = _.find( nodez, function ( node ) {
-      return edge.target().id() === node.id;
+  
+    _.each( cy.edges(), function( edge ){
+      var capacity = edge.data().weight;
+      var source = _.find( nodez, function ( node ) {
+        return edge.source().id() === node.id;
+      });
+      var sink = _.find( nodez, function ( node ) {
+        return edge.target().id() === node.id;
+      });
+    
+      source.addChild( sink, capacity, edge );
+    });
+  
+    var graph = new Graph( nodez );
+  
+    var aco = new ACO( );
+    var solution = aco.maxFlow( graph );
+  
+    var countFlow = _.countBy( solution.traveledEdges, function( id ){ return id; });
+    var edgeDict  = _.indexBy( graph.getEdges(), "id" );
+    
+    _.forEach( solution.traveledEdges, function ( edge ) {
+      edgeDict[edge].cyEdge.data("label", countFlow[edge] );
+      edgeDict[edge].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
     });
     
-    source.addChild( sink, capacity, edge );
+    console.log( solution, countFlow );
   });
   
-  var graph = new Graph( nodez );
+  $("#clearResults").on("click", function(){
+    _.each( cy.edges(), function( edge ){
+      edge.data("label", "" );
+      edge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+    });
   
-  var aco = new ACO( );
-  var solution = aco.maxFlow( graph );
-  
-  var countFlow = _.countBy( solution.traveledEdges, function (edge) {
-    return edge.id;
   });
   
-  _.forEach( solution.traveledEdges, function ( edge ) {
-    edge.cyEdge.data("label", countFlow[edge.id] );
-    edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
-  });
-  
-  console.log( solution );
   
 }); // on dom ready

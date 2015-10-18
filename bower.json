@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "homepage": "https://github.com/jorgenkg/fordypningsprosjektet",
   "authors": [
-    "Jørgen Grimnes <jorgenkg@gmail.com>", "Jakob Hovland"
+    "Jørgen Grimnes <jorgenkg@gmail.com>",
+    "Jakob Hovland"
   ],
   "license": "MIT",
   "dependencies": {
-    "lodash": "~3.10.1",
     "cytoscape": "~2.4.9",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "lodash": "~3.10.1",
+    "remarkable-bootstrap-notify": "~3.1.3"
   }
 }

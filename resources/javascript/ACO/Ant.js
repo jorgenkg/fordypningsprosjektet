@@ -48,7 +48,7 @@ Ant.prototype.move = function( graph ){
   });
   
   return {
-    traveledEdges: traveledEdges,
+    traveledEdges: _.map(traveledEdges, "id"),
     flowAmount: flowAmount,
     flowCost: flowCost
   };
