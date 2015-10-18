@@ -1,0 +1,49 @@
+doctype html
+html( style="height: 100%" )
+  head
+    title ANT Max Flow
+    meta( charset="utf-8" )
+    meta( http-equiv="X-UA-Compatible" content="IE=edge" )
+    meta( name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width" )
+  
+    //-link( rel="stylesheet" type="text/css" href="resources/libraries/bowerStyles.css" )
+    link( rel="stylesheet" type="text/css" href="resources/libraries/theme.css" )
+    link( rel="stylesheet" type="text/css" href="resources/libraries/compiled.css" )
+    
+    script( type="text/javascript" src="resources/libraries/bowerScripts.js" )
+    script( src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" )
+    script( type="text/javascript" src="resources/libraries/packaged.js" )
+  
+  body( style="height: 100%" )
+    <!-- Navigation -->
+    nav.navbar.navbar-default( role="navigation" )
+      .container
+        //-- Brand and toggle get grouped for better mobile display
+        .navbar-header
+          button.navbar-toggle( type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" )
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          .navbar-brand Start Bootstrap
+        
+        //-- Collect the nav links, forms, and other content for toggling
+        .collapse.navbar-collapse#bs-example-navbar-collapse-1
+          ul.nav.navbar-nav
+            li
+              a( href="#" ) About
+            li
+              a( href="#" ) Services
+            li
+              a( href="#" ) Wohoo
+        <!-- /.navbar-collapse -->
+      <!-- /.container -->
+    //-- end nav
+  
+    //-- Page Content
+    .container( style="height: 95%" )
+      .row( style="height: 95%" )
+        .col-lg-12( style="height: 95%" )
+          #cy
+      //-- end row
+    //-- end container

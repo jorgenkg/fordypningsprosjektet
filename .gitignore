@@ -1,2 +1,8 @@
 *.py[cod]
 *.pdf
+bower_components/
+node_modules/
+resources/libraries/bowerScripts.js
+resources/libraries/bowerStyles.css
+resources/libraries/compiled.css
+resources/libraries/packaged.js
