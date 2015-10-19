@@ -37,27 +37,10 @@ ACO.prototype.maxFlow = function ( graph ) {
       // Reset the book keeping variables
       graph.resetFlow();
       
-      if( epochSolution.flowAmount > candidateSolution.flowAmount ){
-        // This ant has found a path with more flow
-        candidateSolution = epochSolution;
-      }
-      else if( epochSolution.flowAmount === candidateSolution.flowAmount && 
-                candidateSolution.flowCost < globalSolution.flowCost ){
-        // This ant has found a cheaper way to transport the same flow amout.
-        candidateSolution = epochSolution;
-      }
+      candidateSolution = this.decideBestSolution( epochSolution, candidateSolution );
     }
     
-    if( candidateSolution.flowAmount > globalSolution.flowAmount ){
-      // The best ant within this epoch has more flow than the global solution 
-      globalSolution = candidateSolution;
-    }
-    else if( candidateSolution.flowAmount === globalSolution.flowAmount && 
-              candidateSolution.flowCost < globalSolution.flowCost ){
-      // The best ant within this epoch found a cheaper way than the global
-      // solution to transport the same flow amout.
-      globalSolution = candidateSolution;
-    }
+    globalSolution = this.decideBestSolution( candidateSolution, globalSolution );
     
     for( j=0; j < edges.length; j++){
       // Evaporate some of the pheromones
@@ -65,7 +48,8 @@ ACO.prototype.maxFlow = function ( graph ) {
     }
     
     if( candidateSolution.flowAmount > 0 ){
-      // This ant has found a flow path
+      // This epoch's most fit ant has found a flow path
+      // Let only the fittest ant deposit pheromones.
       this.depositePheromone( candidateSolution.traveledEdges, this.settings.Q/candidateSolution.flowCost );
     }
     
@@ -78,7 +62,7 @@ ACO.prototype.maxFlow = function ( graph ) {
 
 ACO.prototype.defaultSettings = function(){
   return {
-    numberOfIterations: 50,
+    numberOfIterations: 34,
     evaporationRate   : 0.1,
     numberOfAnts      : 8,
     Q                 : 1.0,
@@ -97,11 +81,27 @@ ACO.prototype.generateAnts = function( numberOfAnts ){
 };
 
 
+ACO.prototype.decideBestSolution = function( localSolution, globalSolution ) {
+  if( localSolution.flowAmount > globalSolution.flowAmount ){
+    // This ant has found a path with more flow
+    return localSolution;
+  }
+  else if( localSolution.flowAmount === globalSolution.flowAmount && 
+            localSolution.flowCost < globalSolution.flowCost ){
+    // This ant has found a cheaper way to transport the same flow amout.
+              return localSolution;
+  }
+  
+  return globalSolution;
+};
+
+
 ACO.prototype.depositePheromone = function( traveledEdges, quantity ){
   for( var i=0; i < traveledEdges.length; i++ ){
     traveledEdges[i].pheromone += quantity;
   }
 };
+
 
 ACO.prototype.adjustPheromoneLevels = function( graph, cost, evaporationRate, pBest ){
   var numerOfNodes = graph.numerOfNodes();

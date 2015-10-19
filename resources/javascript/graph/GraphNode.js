@@ -25,12 +25,12 @@ GraphNode.prototype.isStartNode = function () {
 
 GraphNode.prototype.hasValidEdges = function ( tabuNodes ) {
   return _.any( this.edges, function ( edge ) {
-    return (edge.capacity - edge.expended) > 0 && !_.contains( tabuNodes, edge.sink );
+    return (edge.capacity - edge.expended) > 0 && !_.contains( tabuNodes, edge.sink ) && !edge.backtracked;
   });
 };
 
 GraphNode.prototype.getValidEdges = function ( tabuNodes ) {
   return _.filter( this.edges, function ( edge ) {
-    return (edge.capacity - edge.expended) > 0 && !_.contains( tabuNodes, edge.sink );
+    return (edge.capacity - edge.expended) > 0 && !_.contains( tabuNodes, edge.sink ) && !edge.backtracked;
   });
 };

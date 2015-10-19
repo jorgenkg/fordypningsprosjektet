@@ -17,7 +17,6 @@ function Edge( source, sink, capacity, cyEdge ){
 Edge.prototype.reset = function () {
   this.expended = 0;
   this.backtracked = false;
-  this.pheromone = 100000.0;
 };
 
 Edge.prototype.cost = function () {

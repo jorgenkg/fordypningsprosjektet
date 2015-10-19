@@ -8,7 +8,7 @@ Ant.prototype.move = function( graph ){
    */
   
   var currentPosition = graph.startNode();
-  var tabuNodes = [];
+  var tabuNodes = [ currentPosition ];
   var traveledEdges = [];
   
   while( currentPosition.hasValidEdges( tabuNodes ) || currentPosition !== graph.startNode() ){
@@ -23,11 +23,11 @@ Ant.prototype.move = function( graph ){
       // Teleport the ant to the goal node and reset the tabu list
       // before starting a new flow discovering round
       currentPosition = graph.startNode();
-      tabuNodes = [];
+      tabuNodes = [ currentPosition ];
     }
     else{
       currentPosition = nextNode;
-      tabuNodes.push( tabuNodes );
+      tabuNodes.push( currentPosition );
     }
     
     if( !currentPosition.hasValidEdges( tabuNodes ) ){
@@ -48,7 +48,7 @@ Ant.prototype.move = function( graph ){
   });
   
   return {
-    traveledEdges: _.map(traveledEdges, "id"),
+    traveledEdges: traveledEdges,
     flowAmount: flowAmount,
     flowCost: flowCost
   };

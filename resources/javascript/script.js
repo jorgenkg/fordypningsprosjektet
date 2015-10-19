@@ -26,23 +26,40 @@ $(function(){ // on dom ready
           { data: { id: 'c' } },
           { data: { id: 'd' } },
           { data: { id: 'e' } },
-          { data: { id: 'f' } }
+          { data: { id: 'f' } },
+          { data: { id: 'g' } },
+          { data: { id: 'h' } }
         ], 
       
         edges: [
-          { data: { id: 'ab', weight: 3, source: 'a', target: 'b' } },
-          { data: { id: 'ac', weight: 3, source: 'a', target: 'c' } },
-          { data: { id: 'bc', weight: 2, source: 'b', target: 'c' } },
-          { data: { id: 'bd', weight: 3, source: 'b', target: 'd' } },
-          { data: { id: 'ce', weight: 2, source: 'c', target: 'e' } },
-          { data: { id: 'de', weight: 4, source: 'd', target: 'e' } },
-          { data: { id: 'df', weight: 2, source: 'd', target: 'f' } },
-          { data: { id: 'ef', weight: 3, source: 'e', target: 'f' } }
+          { data: { id: 'ac', weight: 9, source: 'a', target: 'c' } },
+          { data: { id: 'ba', weight: 2, source: 'b', target: 'a' } },
+          { data: { id: 'bd', weight: 10, source: 'b', target: 'd' } },
+          { data: { id: 'be', weight: 10, source: 'b', target: 'e' } },
+          { data: { id: 'ca', weight: 3, source: 'c', target: 'a' } },
+          { data: { id: 'cd', weight: 3, source: 'c', target: 'd' } },
+          { data: { id: 'cg', weight: 4, source: 'c', target: 'g' } },
+          
+          { data: { id: 'dc', weight: 2, source: 'd', target: 'c' } },
+          
+          { data: { id: 'eb', weight: 2, source: 'e', target: 'b' } },
+          { data: { id: 'ed', weight: 1, source: 'e', target: 'd' } },
+          { data: { id: 'ef', weight: 1, source: 'e', target: 'f' } },
+          { data: { id: 'eh', weight: 2, source: 'e', target: 'h' } },
+          
+          { data: { id: 'fd', weight: 1, source: 'f', target: 'd' } },
+          { data: { id: 'fe', weight: 1, source: 'f', target: 'e' } },
+          { data: { id: 'fg', weight: 3, source: 'f', target: 'g' } },
+          
+          { data: { id: 'gc', weight: 2, source: 'g', target: 'c' } },
+          
+          { data: { id: 'he', weight: 4, source: 'h', target: 'e' } },
+          { data: { id: 'hg', weight: 2, source: 'h', target: 'g' } }
         ]
       },
   
     layout: {
-      name: 'breadthfirst',
+      
       directed: true,
       roots: '#a',
       padding: 10
@@ -51,38 +68,47 @@ $(function(){ // on dom ready
   
   
   $("#restartSearch").on("click", function(){
-    var notify = $.notify('<strong>Restarting</strong> the search... ok', {delay: 500});
+    
+    var notify = $.notify('<strong>Restarting</strong> the search... ok', {delay: 1});
     
     var nodez = _.map( cy.nodes(), function ( elem ) {
-      return new GraphNode( elem.id(), elem.id()==='a', elem.id()==='f' );
+      return new GraphNode( elem.id(), elem.id()==='h', elem.id()==='a' );
     });
   
     _.each( cy.edges(), function( edge ){
       var capacity = edge.data().weight;
       var source = _.find( nodez, function ( node ) {
+        if(edge.source().id() === node.id && node.isStartNode()){
+          edge.source().css({'background-color': '#73e45b'});
+        }
         return edge.source().id() === node.id;
       });
       var sink = _.find( nodez, function ( node ) {
+        if(edge.target().id() === node.id && node.isGoalNode()){
+          edge.target().css({'background-color': '#ffba66'});
+        }
         return edge.target().id() === node.id;
       });
-    
       source.addChild( sink, capacity, edge );
     });
   
     var graph = new Graph( nodez );
-  
+    
+    _.forEach( graph.getEdges(), function ( edge ) {
+      edge.cyEdge.data("label", "0 of "+edge.capacity );
+    });
+    
     var aco = new ACO( );
     var solution = aco.maxFlow( graph );
   
-    var countFlow = _.countBy( solution.traveledEdges, function( id ){ return id; });
-    var edgeDict  = _.indexBy( graph.getEdges(), "id" );
+    var countFlow = _.countBy( solution.traveledEdges, function( edge ){ return edge.id; });
     
     _.forEach( solution.traveledEdges, function ( edge ) {
-      edgeDict[edge].cyEdge.data("label", countFlow[edge] );
-      edgeDict[edge].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+      edge.cyEdge.data("label", countFlow[edge.id]+" of "+edge.capacity );
+      edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
     });
     
-    console.log( solution, countFlow );
+    console.log( solution );
   });
   
   $("#clearResults").on("click", function(){
