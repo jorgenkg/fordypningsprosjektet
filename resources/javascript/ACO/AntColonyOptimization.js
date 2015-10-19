@@ -68,8 +68,9 @@ ACO.prototype.maxFlow = function ( graph ) {
     
     if( candidateSolution.flowAmount > 0 ){
       // This epoch's most fit ant has found a flow path
-      // Let only the fittest ant deposit pheromones.
-      self.depositePheromone( candidateSolution.traveledEdges, self.settings.Q/candidateSolution.flowCost );
+      // Let only the fittest ant deposit pheromones. 
+      // Deposit only once per edge, even though we might have traversed it multiple times
+      self.depositePheromone( _.uniq(candidateSolution.traveledEdges), self.settings.Q/candidateSolution.flowCost );
     }
     
     self.adjustPheromoneLevels( graph, globalSolution.flowCost, self.settings.evaporationRate, 0.5 );
@@ -80,22 +81,20 @@ ACO.prototype.maxFlow = function ( graph ) {
     epoch( );
     counter += 1;
     if( counter >= self.settings.numberOfIterations ){
-      console.log("done");
+      console.log("Best solution after "+counter+" iterations:", globalSolution );
       clearInterval( timer );
     }
     else{
     }
-  }, 300);
-  
-  return globalSolution;
+  }, 80);
 };
 
 
 ACO.prototype.defaultSettings = function(){
   return {
-    numberOfIterations: 50,
+    numberOfIterations: 88,
     evaporationRate   : 0.1,
-    numberOfAnts      : 7,
+    numberOfAnts      : 6,
     Q                 : 1.0,
     initialPheromone  : 100000.0
   };

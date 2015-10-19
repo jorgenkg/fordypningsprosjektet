@@ -43,7 +43,7 @@ Ant.prototype.move = function( graph ){
     return edge.source === graph.startNode() ? 1 : 0;
   });
   
-  var flowCost = _.sum( _.uniq(traveledEdges), function( edge ){
+  var flowCost = _.sum( traveledEdges, function( edge ){
     return edge.cost();
   });
   

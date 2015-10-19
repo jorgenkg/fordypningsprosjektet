@@ -20,47 +20,31 @@ $(function(){ // on dom ready
         }),
   
     elements: {
-        nodes: [
-          { data: { id: 'a' } },
-          { data: { id: 'b' } },
-          { data: { id: 'c' } },
-          { data: { id: 'd' } },
-          { data: { id: 'e' } },
-          { data: { id: 'f' } },
-          { data: { id: 'g' } },
-          { data: { id: 'h' } }
-        ], 
-      
-        edges: [
-          { data: { id: 'ac', weight: 9, source: 'a', target: 'c' } },
-          { data: { id: 'ba', weight: 2, source: 'b', target: 'a' } },
-          { data: { id: 'bd', weight: 10, source: 'b', target: 'd' } },
-          { data: { id: 'be', weight: 10, source: 'b', target: 'e' } },
-          { data: { id: 'ca', weight: 3, source: 'c', target: 'a' } },
-          { data: { id: 'cd', weight: 3, source: 'c', target: 'd' } },
-          { data: { id: 'cg', weight: 4, source: 'c', target: 'g' } },
-          
-          { data: { id: 'dc', weight: 2, source: 'd', target: 'c' } },
-          
-          { data: { id: 'eb', weight: 2, source: 'e', target: 'b' } },
-          { data: { id: 'ed', weight: 1, source: 'e', target: 'd' } },
-          { data: { id: 'ef', weight: 1, source: 'e', target: 'f' } },
-          { data: { id: 'eh', weight: 2, source: 'e', target: 'h' } },
-          
-          { data: { id: 'fd', weight: 1, source: 'f', target: 'd' } },
-          { data: { id: 'fe', weight: 1, source: 'f', target: 'e' } },
-          { data: { id: 'fg', weight: 3, source: 'f', target: 'g' } },
-          
-          { data: { id: 'gc', weight: 2, source: 'g', target: 'c' } },
-          
-          { data: { id: 'he', weight: 4, source: 'h', target: 'e' } },
-          { data: { id: 'hg', weight: 2, source: 'h', target: 'g' } }
-        ]
-      },
+    nodes: [
+		{ data: { id: '0' } },
+		{ data: { id: '1' } },
+		{ data: { id: '2' } },
+		{ data: { id: '3' } },
+		{ data: { id: '4' } },
+		{ data: { id: '5' } },
+    ],
+    edges: [
+		{ data: { id: '0>1', weight: 16, source: '0', target: '1' } },
+		{ data: { id: '0>2', weight: 13, source: '0', target: '2' } },
+		{ data: { id: '1>2', weight: 10, source: '1', target: '2' } },
+		{ data: { id: '1>3', weight: 12, source: '1', target: '3' } },
+		{ data: { id: '2>1', weight: 4, source: '2', target: '1' } },
+		{ data: { id: '2>4', weight: 14, source: '2', target: '4' } },
+		{ data: { id: '3>2', weight: 9, source: '3', target: '2' } },
+		{ data: { id: '3>5', weight: 20, source: '3', target: '5' } },
+		{ data: { id: '4>3', weight: 7, source: '4', target: '3' } },
+		{ data: { id: '4>5', weight: 4, source: '4', target: '5' } },
+    ]
+},
   
     layout: {
       name: "circle",
-      directed: true,
+      directed: false,
       roots: '#a',
       padding: 10
     }
@@ -69,10 +53,10 @@ $(function(){ // on dom ready
   
   $("#restartSearch").on("click", function(){
     
-    var notify = $.notify('<strong>Restarting</strong> the search... ok', {delay: 1});
+    var notify = $.notify('Searching...', {delay: 1});
     
     var nodez = _.map( cy.nodes(), function ( elem ) {
-      return new GraphNode( elem.id(), elem.id()==='h', elem.id()==='a' );
+      return new GraphNode( elem.id(), elem.id()==='0', elem.id()===(cy.nodes().length-1).toString() );
     });
   
     _.each( cy.edges(), function( edge ){
@@ -99,16 +83,7 @@ $(function(){ // on dom ready
     });
     
     var aco = new ACO( );
-    var solution = aco.maxFlow( graph );
-  
-    var countFlow = _.countBy( solution.traveledEdges, function( edge ){ return edge.id; });
-    
-    _.forEach( solution.traveledEdges, function ( edge ) {
-      edge.cyEdge.data("label", countFlow[edge.id]+" of "+edge.capacity );
-      edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
-    });
-    
-    console.log( solution );
+    aco.maxFlow( graph ); // async
   });
   
   $("#clearResults").on("click", function(){
