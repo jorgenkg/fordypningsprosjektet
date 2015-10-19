@@ -4,6 +4,7 @@ var ACO = function( settings ){
 
 
 ACO.prototype.maxFlow = function ( graph ) {
+  var self = this;
   var globalSolution = {
     traveledEdges: [],
     flowAmount: -1,
@@ -22,7 +23,7 @@ ACO.prototype.maxFlow = function ( graph ) {
     edges[j].pheromone = this.settings.initialPheromone;
   }
   
-  for( i=0; i < this.settings.numberOfIterations; i++ ){
+  var epoch = function( ){
     // Loop through the specified number of iterations 
     
     candidateSolution = {
@@ -31,30 +32,60 @@ ACO.prototype.maxFlow = function ( graph ) {
       flowCost: Infinity
     };
     
+    var keep = [];
+    
     for( j=0; j < ants.length; j++ ){
       // Let each ant construct a candidate solution
       epochSolution = ants[j].move( graph );
       // Reset the book keeping variables
       graph.resetFlow();
       
-      candidateSolution = this.decideBestSolution( epochSolution, candidateSolution );
+      keep.push( _.map(epochSolution.traveledEdges, "id") );
+      
+      candidateSolution = self.decideBestSolution( epochSolution, candidateSolution );
     }
     
-    globalSolution = this.decideBestSolution( candidateSolution, globalSolution );
+    // RENDERING
+    var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
+    for( j=0; j < edges.length; j++){
+      if( !_.isUndefined( countFlow[edges[j].id] )){
+        edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+        edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+      }
+      else {
+        edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+        edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+      }
+    }
+    //END
+    
+    globalSolution = self.decideBestSolution( candidateSolution, globalSolution );
     
     for( j=0; j < edges.length; j++){
       // Evaporate some of the pheromones
-      edges[j].pheromone *= (1 - this.settings.evaporationRate);
+      edges[j].pheromone *= (1 - self.settings.evaporationRate);
     }
     
     if( candidateSolution.flowAmount > 0 ){
       // This epoch's most fit ant has found a flow path
       // Let only the fittest ant deposit pheromones.
-      this.depositePheromone( candidateSolution.traveledEdges, this.settings.Q/candidateSolution.flowCost );
+      self.depositePheromone( candidateSolution.traveledEdges, self.settings.Q/candidateSolution.flowCost );
     }
     
-    this.adjustPheromoneLevels( graph, globalSolution.flowCost, this.settings.evaporationRate, 0.5 );
-  }
+    self.adjustPheromoneLevels( graph, globalSolution.flowCost, self.settings.evaporationRate, 0.5 );
+  };
+  
+  var counter = 0;
+  var timer = setInterval( function(){
+    epoch( );
+    counter += 1;
+    if( counter >= self.settings.numberOfIterations ){
+      console.log("done");
+      clearInterval( timer );
+    }
+    else{
+    }
+  }, 300);
   
   return globalSolution;
 };
@@ -62,9 +93,9 @@ ACO.prototype.maxFlow = function ( graph ) {
 
 ACO.prototype.defaultSettings = function(){
   return {
-    numberOfIterations: 34,
+    numberOfIterations: 50,
     evaporationRate   : 0.1,
-    numberOfAnts      : 8,
+    numberOfAnts      : 7,
     Q                 : 1.0,
     initialPheromone  : 100000.0
   };

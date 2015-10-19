@@ -59,7 +59,7 @@ $(function(){ // on dom ready
       },
   
     layout: {
-      
+      name: "circle",
       directed: true,
       roots: '#a',
       padding: 10

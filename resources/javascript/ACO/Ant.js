@@ -43,7 +43,7 @@ Ant.prototype.move = function( graph ){
     return edge.source === graph.startNode() ? 1 : 0;
   });
   
-  var flowCost = _.sum( traveledEdges, function( edge ){
+  var flowCost = _.sum( _.uniq(traveledEdges), function( edge ){
     return edge.cost();
   });
   
@@ -73,6 +73,8 @@ Ant.prototype.chooseNextEdge = function( node, tabuNodes ){
   var alpha = 1, beta = 1;
   var validEdges = node.getValidEdges( tabuNodes );
   
+  
+  
   if( validEdges.length === 0 )
     throw "No valid edges to travel";
   
@@ -85,5 +87,7 @@ Ant.prototype.chooseNextEdge = function( node, tabuNodes ){
     return [probability, edge];
   });
   
-  return weightedSelect( s );
+  var chosen = weightedSelect( s );
+  
+  return chosen;
 };
