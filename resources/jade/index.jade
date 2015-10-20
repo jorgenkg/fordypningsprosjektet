@@ -15,36 +15,26 @@ html( style="height: 100%" )
     script( type="text/javascript" src="resources/libraries/packaged.js" )
   
   body( style="height: 100%" )
-    <!-- Navigation -->
-    nav.navbar.navbar-default( role="navigation" )
-      .container
-        //-- Brand and toggle get grouped for better mobile display
-        .navbar-header
-          button.navbar-toggle( type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" )
-            span.sr-only Toggle navigation
-            span.icon-bar
-            span.icon-bar
-            span.icon-bar
-          .navbar-brand ANT Max Flow
-        
-        //-- Collect the nav links, forms, and other content for toggling
-        .collapse.navbar-collapse#bs-example-navbar-collapse-1
-          ul.nav.navbar-nav
-            li
-              a( href="#" )#restartSearch Search
-            li
-              a( href="#" )#clearResults Clear
-            li
-              a( href="#" ) dud
-        <!-- /.navbar-collapse -->
-      <!-- /.container -->
-    //-- end nav
+    .container
+      .row
+        .col-xs-12
+          h1 
+            | Max Flow 
+            small Ant Colony Optimization
   
     //-- Page Content
     .container( style="height: 95%" )
-      button.btn.btn-default( data-toggle="collapse" data-target="#bs-collapse-2" ) Toggle settings
-          
-      .row.collapse#bs-collapse-2
+      .row
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+          button.btn.btn-sm.btn-info.btn-block( data-toggle="collapse" data-target="#bs-collapse-2" ) Toggle settings
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+          button.btn.btn-sm.btn-info.btn-block#restartSearch Search
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+          button.btn.btn-sm.btn-warning.btn-block#clearResults Clear
+      
+      hr/
+      
+      .well.col-xs-12.collapse#bs-collapse-2
         .form
           .form-group.col-xs-6.col-sm-3.col-md-2
             label
@@ -70,7 +60,6 @@ html( style="height: 100%" )
             label
               | Visualize steps?
               input.form-control(type="checkbox" data-bind="checked: settings.visualize")
-        hr
       
       .row( style="height: 90%" )
         .col-xs-12.col-sm-3

@@ -12,25 +12,31 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="resources/libraries/packaged.js"></script>
   </head>
-  <body style="height: 100%"><!-- Navigation -->
-    <nav role="navigation" class="navbar navbar-default">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
-          <div class="navbar-brand">ANT Max Flow</div>
+  <body style="height: 100%">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>
+             
+            Max Flow <small>Ant Colony Optimization</small>
+          </h1>
         </div>
-        <div id="bs-example-navbar-collapse-1" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="#" id="restartSearch">Search</a></li>
-            <li><a href="#" id="clearResults">Clear</a></li>
-            <li><a href="#">dud</a></li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container -->
-    </nav>
+      </div>
+    </div>
     <div style="height: 95%" class="container">
-      <button data-toggle="collapse" data-target="#bs-collapse-2" class="btn btn-default">Toggle settings</button>
-      <div id="bs-collapse-2" class="row collapse">
+      <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
+          <button data-toggle="collapse" data-target="#bs-collapse-2" class="btn btn-sm btn-info btn-block">Toggle settings</button>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
+          <button id="restartSearch" class="btn btn-sm btn-info btn-block">Search</button>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
+          <button id="clearResults" class="btn btn-sm btn-warning btn-block">Clear</button>
+        </div>
+      </div>
+      <hr>
+      <div id="bs-collapse-2" class="well col-xs-12 collapse">
         <div class="form">
           <div class="form-group col-xs-6 col-sm-3 col-md-2">
             <label>Number Of Iterations
@@ -63,7 +69,6 @@
             </label>
           </div>
         </div>
-        <hr>
       </div>
       <div style="height: 90%" class="row">
         <div class="col-xs-12 col-sm-3">
