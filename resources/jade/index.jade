@@ -31,7 +31,7 @@ html( style="height: 100%" )
         .collapse.navbar-collapse#bs-example-navbar-collapse-1
           ul.nav.navbar-nav
             li
-              a( href="#" )#restartSearch Restart
+              a( href="#" )#restartSearch Search
             li
               a( href="#" )#clearResults Clear
             li
@@ -42,8 +42,46 @@ html( style="height: 100%" )
   
     //-- Page Content
     .container( style="height: 95%" )
-      .row( style="height: 95%" )
-        .col-lg-12( style="height: 95%" )
+      button.btn.btn-default( data-toggle="collapse" data-target="#bs-collapse-2" ) Toggle settings
+          
+      .row.collapse#bs-collapse-2
+        .form
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Number Of Iterations
+              input.form-control(type="text" data-bind="value: settings.numberOfIterations")
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Evaporation Rate
+              input.form-control(type="text" data-bind="value: settings.evaporationRate")
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Number Of Ants
+              input.form-control(type="text" data-bind="value: settings.numberOfAnts")
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Q
+              input.form-control(type="text" data-bind="value: settings.Q")
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Initial Pheromone
+              input.form-control(type="text" data-bind="value: settings.initialPheromone")
+          .form-group.col-xs-6.col-sm-3.col-md-2
+            label
+              | Visualize steps?
+              input.form-control(type="checkbox" data-bind="checked: settings.visualize")
+        hr
+      
+      .row( style="height: 90%" )
+        .col-xs-12.col-sm-3
+          h3 Solutions
+          p( data-bind="visible: solutions().length == 0") None yet
+          ul.list-group(data-bind="foreach: solutions")
+            li.list-group-item
+              | Flow: <span data-bind="text: flow"></span>
+              | Cost: <span data-bind="text: cost"></span>
+        .col-xs-12.col-sm-9( style="height: 95%" )
           #cy
+              
       //-- end row
     //-- end container

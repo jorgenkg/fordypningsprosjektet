@@ -38,7 +38,7 @@ module.exports = function(grunt) {
             dest: 'resources/libraries/compiled.css'
           },
           js: {
-            src: ["resources/javascript/utils/*.js", "resources/javascript/graph/*.js", "resources/javascript/ACO/*.js", "resources/javascript/*.js"],
+            src: ["resources/javascript/utils/*.js", "resources/javascript/graph/*.js", "resources/javascript/ACO/*.js", "resources/javascript/initialize_gui.js", "resources/javascript/events/*.js"],
             dest: 'resources/libraries/packaged.js'
           }
         },

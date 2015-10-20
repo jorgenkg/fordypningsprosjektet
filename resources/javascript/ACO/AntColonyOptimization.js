@@ -1,22 +1,38 @@
 var ACO = function( settings ){
+  // augment the settings parameter with predefined defaults
+  console.log(" pre", settings.visualize );
   this.settings = _.defaults( settings || {}, this.defaultSettings() );
+  console.log(" post", settings.visualize );
+};
+
+
+ACO.prototype.defaultSettings = function(){
+  return {
+    numberOfIterations: 200,
+    evaporationRate   : 0.1,
+    numberOfAnts      : 6,
+    Q                 : 1.0,
+    initialPheromone  : 100000.0,
+    visualize         : false,
+  };
 };
 
 
 ACO.prototype.maxFlow = function ( graph ) {
   var self = this;
+  
+  var ants        = this.generateAnts( this.settings.numberOfAnts );
+  var edges       = graph.getEdges();
+  
+  var candidateSolution = {};
+  var epochSolution = {};
   var globalSolution = {
     traveledEdges: [],
     flowAmount: -1,
     flowCost: Infinity
   };
   
-  var ants        = this.generateAnts( this.settings.numberOfAnts );
-  var edges       = graph.getEdges();
-  
   var i = 0, j = 0;
-  var candidateSolution = {};
-  var epochSolution = {};
   
   // Initialize the pheromone levels
   for( j=0; j < edges.length; j++){
@@ -24,7 +40,9 @@ ACO.prototype.maxFlow = function ( graph ) {
   }
   
   var epoch = function( ){
-    // Loop through the specified number of iterations 
+    // An iteration of the algorithm. This has to be defined as a function
+    // rather than a loop in order to deaccelerate the rendering speed to 
+    // a interpretable rate.
     
     candidateSolution = {
       traveledEdges: [],
@@ -32,34 +50,39 @@ ACO.prototype.maxFlow = function ( graph ) {
       flowCost: Infinity
     };
     
-    var keep = [];
-    
     for( j=0; j < ants.length; j++ ){
       // Let each ant construct a candidate solution
       epochSolution = ants[j].move( graph );
       // Reset the book keeping variables
       graph.resetFlow();
       
-      keep.push( _.map(epochSolution.traveledEdges, "id") );
-      
       candidateSolution = self.decideBestSolution( epochSolution, candidateSolution );
     }
     
-    // RENDERING
-    var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
-    for( j=0; j < edges.length; j++){
-      if( !_.isUndefined( countFlow[edges[j].id] )){
-        edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-        edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
-      }
-      else {
-        edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-        edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
-      }
-    }
-    //END
-    
     globalSolution = self.decideBestSolution( candidateSolution, globalSolution );
+    
+    // RENDERING
+    if( self.settings.visualize ){
+      var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
+      for( j=0; j < edges.length; j++){
+        if( !_.isUndefined( countFlow[edges[j].id] )){
+          edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+          if( globalSolution !== candidateSolution){
+            // Only update the graphics if the rendered solution actually has changed
+            edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+          }
+        }
+        else {
+          edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+          if( globalSolution !== candidateSolution){
+            // Only update the graphics if the rendered solution actually has changed
+            edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+          }
+        }
+      }
+      //END
+    }
+    
     
     for( j=0; j < edges.length; j++){
       // Evaporate some of the pheromones
@@ -67,37 +90,51 @@ ACO.prototype.maxFlow = function ( graph ) {
     }
     
     if( candidateSolution.flowAmount > 0 ){
-      // This epoch's most fit ant has found a flow path
-      // Let only the fittest ant deposit pheromones. 
-      // Deposit only once per edge, even though we might have traversed it multiple times
+      // Let only this epoch's most fit ant deposit pheromones and deposit only once per edge, even 
+      // though we might have traversed it multiple times.
       self.depositePheromone( _.uniq(candidateSolution.traveledEdges), self.settings.Q/candidateSolution.flowCost );
     }
     
     self.adjustPheromoneLevels( graph, globalSolution.flowCost, self.settings.evaporationRate, 0.5 );
   };
   
+  if( self.settings.visualize ){
+    for( j=0; j < edges.length; j++){
+      // Initialize the visualization labels
+      edges[j].cyEdge.data("label", "0 of "+edges[j].capacity ); // currently not yet using any flow
+    }
+  }
+  
   var counter = 0;
+  var notifier = $.notify('Running...', {type: "info", progress: 0, showProgressbar: true, allow_dismiss: false});
   var timer = setInterval( function(){
     epoch( );
     counter += 1;
+    notifier.update({"progress": _.floor(100.0*counter / self.settings.numberOfIterations)});
     if( counter >= self.settings.numberOfIterations ){
-      console.log("Best solution after "+counter+" iterations:", globalSolution );
+      var results = "Ran for "+counter+" iterations. Flow: " + globalSolution.flowAmount + " Cost: " + globalSolution.flowCost;
+      notifier.update({"type": "success", "message": results, showProgressbar: false});
       clearInterval( timer );
+      viewModel.solutions.unshift({ flow: globalSolution.flowAmount, cost: globalSolution.flowCost });
+      console.log( globalSolution );
+      
+      // RENDERING
+      var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
+      for( j=0; j < edges.length; j++){
+        if( !_.isUndefined( countFlow[edges[j].id] )){
+          edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+          edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+        }
+        else {
+          edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
+          edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+        }
+      }
+      //END
     }
     else{
     }
-  }, 80);
-};
-
-
-ACO.prototype.defaultSettings = function(){
-  return {
-    numberOfIterations: 88,
-    evaporationRate   : 0.1,
-    numberOfAnts      : 6,
-    Q                 : 1.0,
-    initialPheromone  : 100000.0
-  };
+  }, self.settings.visualize ? 40 : 0);
 };
 
 
@@ -134,9 +171,9 @@ ACO.prototype.depositePheromone = function( traveledEdges, quantity ){
 
 
 ACO.prototype.adjustPheromoneLevels = function( graph, cost, evaporationRate, pBest ){
-  var numerOfNodes = graph.numerOfNodes();
-  pBest = _.isUndefined(pBest) ? 0.5 : pBest;
+  pBest = _.isUndefined(pBest) ? 0.5 : pBest; // define the variable if it wasnt passed as a param
   
+  var numerOfNodes = graph.numerOfNodes();
   var maxPheromone = 1.0 / (cost * evaporationRate);
   var minPheromone = maxPheromone * (1.0 - Math.pow(pBest, 1.0/numerOfNodes) ) / ((numerOfNodes/2.0-1)*Math.pow(pBest, 1.0/numerOfNodes));
   

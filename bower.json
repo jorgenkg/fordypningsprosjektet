@@ -10,6 +10,7 @@
   "dependencies": {
     "cytoscape": "~2.4.9",
     "jquery": "~2.1.4",
+    "knockout": "~3.3.0",
     "lodash": "~3.10.1",
     "remarkable-bootstrap-notify": "~3.1.3"
   }

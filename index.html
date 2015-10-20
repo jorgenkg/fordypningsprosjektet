@@ -21,7 +21,7 @@
         </div>
         <div id="bs-example-navbar-collapse-1" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="#" id="restartSearch">Restart</a></li>
+            <li><a href="#" id="restartSearch">Search</a></li>
             <li><a href="#" id="clearResults">Clear</a></li>
             <li><a href="#">dud</a></li>
           </ul>
@@ -29,8 +29,54 @@
       </div><!-- /.container -->
     </nav>
     <div style="height: 95%" class="container">
-      <div style="height: 95%" class="row">
-        <div style="height: 95%" class="col-lg-12">
+      <button data-toggle="collapse" data-target="#bs-collapse-2" class="btn btn-default">Toggle settings</button>
+      <div id="bs-collapse-2" class="row collapse">
+        <div class="form">
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Number Of Iterations
+              <input type="text" data-bind="value: settings.numberOfIterations" class="form-control">
+            </label>
+          </div>
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Evaporation Rate
+              <input type="text" data-bind="value: settings.evaporationRate" class="form-control">
+            </label>
+          </div>
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Number Of Ants
+              <input type="text" data-bind="value: settings.numberOfAnts" class="form-control">
+            </label>
+          </div>
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Q
+              <input type="text" data-bind="value: settings.Q" class="form-control">
+            </label>
+          </div>
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Initial Pheromone
+              <input type="text" data-bind="value: settings.initialPheromone" class="form-control">
+            </label>
+          </div>
+          <div class="form-group col-xs-6 col-sm-3 col-md-2">
+            <label>Visualize steps?
+              <input type="checkbox" data-bind="checked: settings.visualize" class="form-control">
+            </label>
+          </div>
+        </div>
+        <hr>
+      </div>
+      <div style="height: 90%" class="row">
+        <div class="col-xs-12 col-sm-3">
+          <h3>Solutions</h3>
+          <p data-bind="visible: solutions().length == 0">None yet</p>
+          <ul data-bind="foreach: solutions" class="list-group">
+            <li class="list-group-item">
+              Flow: <span data-bind="text: flow"></span>
+              Cost: <span data-bind="text: cost"></span>
+            </li>
+          </ul>
+        </div>
+        <div style="height: 95%" class="col-xs-12 col-sm-9">
           <div id="cy"></div>
         </div>
       </div>
