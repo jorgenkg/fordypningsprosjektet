@@ -25,50 +25,54 @@ html( style="height: 100%" )
     //-- Page Content
     .container( style="height: 95%" )
       .row
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
           button.btn.btn-sm.btn-info.btn-block( data-toggle="collapse" data-target="#bs-collapse-2" ) Toggle settings
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
           button.btn.btn-sm.btn-info.btn-block#restartSearch Search
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
           button.btn.btn-sm.btn-warning.btn-block#clearResults Clear
       
       hr/
       
       .well.col-xs-12.collapse#bs-collapse-2
         .form
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Number Of Iterations
               input.form-control(type="text" data-bind="value: settings.numberOfIterations")
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Evaporation Rate
               input.form-control(type="text" data-bind="value: settings.evaporationRate")
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Number Of Ants
               input.form-control(type="text" data-bind="value: settings.numberOfAnts")
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Q
               input.form-control(type="text" data-bind="value: settings.Q")
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Initial Pheromone
               input.form-control(type="text" data-bind="value: settings.initialPheromone")
-          .form-group.col-xs-6.col-sm-3.col-md-2
+          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
             label
               | Visualize steps?
               input.form-control(type="checkbox" data-bind="checked: settings.visualize")
       
       .row( style="height: 90%" )
         .col-xs-12.col-sm-3
-          h3 Solutions
-          p( data-bind="visible: solutions().length == 0") None yet
-          ul.list-group(data-bind="foreach: solutions")
+          ul.list-group
+            li.list-group-item
+              h4 Solutions:
+            li.list-group-item.disabled( data-bind="visible: solutions().length == 0" )
+              | Non yet
+            <!-- ko foreach: solutions -->
             li.list-group-item
               | Flow: <span data-bind="text: flow"></span>
               | Cost: <span data-bind="text: cost"></span>
+            <!-- /ko -->
         .col-xs-12.col-sm-9( style="height: 95%" )
           #cy
               

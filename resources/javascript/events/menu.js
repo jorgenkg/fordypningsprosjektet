@@ -48,6 +48,9 @@ $(function(){ // on dom ready
   });
   
   $("#clearResults").on("click", function(){
+    // clear the result list
+    viewModel.solutions.removeAll();
+    
     _.each( cy.edges(), function( edge ){
       edge.data("label", "" );
       edge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });

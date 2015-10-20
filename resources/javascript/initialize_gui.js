@@ -10,7 +10,7 @@ $(function(){ // on dom ready
         numberOfAnts      : ko.observable(6),
         Q                 : ko.observable(1.0),
         initialPheromone  : ko.observable(100000.0),
-        visualize         : ko.observable(true),
+        visualize         : ko.observable(false),
       }
   };
   
