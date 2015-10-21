@@ -25,54 +25,75 @@ html( style="height: 100%" )
     //-- Page Content
     .container( style="height: 95%" )
       .row
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
-          button.btn.btn-sm.btn-info.btn-block( data-toggle="collapse" data-target="#bs-collapse-2" ) Toggle settings
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
-          button.btn.btn-sm.btn-info.btn-block#restartSearch Search
-        .col-xs-12.col-sm-4.col-md-3.col-lg-2( style="margin-top:5px" )
-          button.btn.btn-sm.btn-warning.btn-block#clearResults Clear
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2.form-group
+          button.btn.btn-sm.btn-primary.btn-block( data-toggle="collapse" data-target="#bs-collapse-2" )#settingsButton
+            | #[span.glyphicon.glyphicon-chevron-down( data-bind="visible: !showSettings()" )] 
+            | #[span.glyphicon.glyphicon-chevron-up( data-bind="visible: showSettings" )] 
+            | Toggle settings
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2.form-group
+          button.btn.btn-sm.btn-primary.btn-block#startSearchButton
+            | #[span.glyphicon.glyphicon-search] 
+            | Search
+        .col-xs-12.col-sm-4.col-md-3.col-lg-2.form-group
+          button.btn.btn-sm.btn-warning.btn-block#clearResults
+            | #[span.glyphicon.glyphicon-remove-circle] 
+            | Clear
       
-      hr/
+      .row
+        .col-xs-12
+          hr/
       
-      .well.col-xs-12.collapse#bs-collapse-2
-        .form
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Number Of Iterations
-              input.form-control(type="text" data-bind="value: settings.numberOfIterations")
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Evaporation Rate
-              input.form-control(type="text" data-bind="value: settings.evaporationRate")
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Number Of Ants
-              input.form-control(type="text" data-bind="value: settings.numberOfAnts")
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Q
-              input.form-control(type="text" data-bind="value: settings.Q")
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Initial Pheromone
-              input.form-control(type="text" data-bind="value: settings.initialPheromone")
-          .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
-            label
-              | Visualize steps?
-              input.form-control(type="checkbox" data-bind="checked: settings.visualize")
+      .row.collapse#bs-collapse-2
+        .col-xs-12.well
+          .form
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Number Of Iterations
+                input.form-control(type="text" data-bind="value: settings.numberOfIterations")
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Evaporation Rate
+                input.form-control(type="text" data-bind="value: settings.evaporationRate")
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Number Of Ants
+                input.form-control(type="text" data-bind="value: settings.numberOfAnts")
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Q
+                input.form-control(type="text" data-bind="value: settings.Q")
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Initial Pheromone
+                input.form-control(type="text" data-bind="value: settings.initialPheromone")
+            .form-group.col-xs-12.col-sm-4.col-md-3.col-md-lg-2
+              label
+                | Sleep time between drawing
+                input.form-control(type="text" data-bind="value: settings.sleepTime")
       
+      .row( data-bind="visible: progressValue() > 0")
+        .col-xs-12
+          div( data-bind="progress: { value: progressValue, text: 'completed', textHidden: false, animated: true, striped: true }" )
+          
       .row( style="height: 90%" )
         .col-xs-12.col-sm-3
-          ul.list-group
-            li.list-group-item
-              h4 Solutions:
-            li.list-group-item.disabled( data-bind="visible: solutions().length == 0" )
-              | Non yet
-            <!-- ko foreach: solutions -->
-            li.list-group-item
-              | Flow: <span data-bind="text: flow"></span>
-              | Cost: <span data-bind="text: cost"></span>
-            <!-- /ko -->
+          .row.form-group
+            button.btn.btn-block.btn-sm.btn-info( data-bind="click: function(){settings.visualize(!settings.visualize());}")
+              span.pull-left
+                | #[span.glyphicon.glyphicon-unchecked( data-bind="visible: !settings.visualize()" )] 
+                | #[span.glyphicon.glyphicon-check( data-bind="visible: settings.visualize()" )] 
+                | Visualize steps
+          .row
+            ul.list-group
+              li.list-group-item
+                strong Solutions:
+              li.list-group-item.disabled( data-bind="visible: solutions().length == 0" )
+                | Non yet
+              <!-- ko foreach: solutions -->
+              li.list-group-item
+                | Flow: <span data-bind="text: flow"></span>
+                | Cost: <span data-bind="text: cost"></span>
+              <!-- /ko -->
         .col-xs-12.col-sm-9( style="height: 95%" )
           #cy
               

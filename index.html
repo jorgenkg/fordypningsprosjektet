@@ -25,63 +25,77 @@
     </div>
     <div style="height: 95%" class="container">
       <div class="row">
-        <div style="margin-top:5px" class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
-          <button data-toggle="collapse" data-target="#bs-collapse-2" class="btn btn-sm btn-info btn-block">Toggle settings</button>
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2 form-group">
+          <button data-toggle="collapse" data-target="#bs-collapse-2" id="settingsButton" class="btn btn-sm btn-primary btn-block"><span data-bind="visible: !showSettings()" class="glyphicon glyphicon-chevron-down"></span> <span data-bind="visible: showSettings" class="glyphicon glyphicon-chevron-up"></span> Toggle settings</button>
         </div>
-        <div style="margin-top:5px" class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
-          <button id="restartSearch" class="btn btn-sm btn-info btn-block">Search</button>
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2 form-group">
+          <button id="startSearchButton" class="btn btn-sm btn-primary btn-block"><span class="glyphicon glyphicon-search"></span> Search</button>
         </div>
-        <div style="margin-top:5px" class="col-xs-12 col-sm-4 col-md-3 col-lg-2">
-          <button id="clearResults" class="btn btn-sm btn-warning btn-block">Clear</button>
+        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2 form-group">
+          <button id="clearResults" class="btn btn-sm btn-warning btn-block"><span class="glyphicon glyphicon-remove-circle"></span> Clear</button>
         </div>
       </div>
-      <hr>
-      <div id="bs-collapse-2" class="well col-xs-12 collapse">
-        <div class="form">
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Number Of Iterations
-              <input type="text" data-bind="value: settings.numberOfIterations" class="form-control">
-            </label>
+      <div class="row">
+        <div class="col-xs-12">
+          <hr>
+        </div>
+      </div>
+      <div id="bs-collapse-2" class="row collapse">
+        <div class="col-xs-12 well">
+          <div class="form">
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Number Of Iterations
+                <input type="text" data-bind="value: settings.numberOfIterations" class="form-control">
+              </label>
+            </div>
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Evaporation Rate
+                <input type="text" data-bind="value: settings.evaporationRate" class="form-control">
+              </label>
+            </div>
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Number Of Ants
+                <input type="text" data-bind="value: settings.numberOfAnts" class="form-control">
+              </label>
+            </div>
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Q
+                <input type="text" data-bind="value: settings.Q" class="form-control">
+              </label>
+            </div>
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Initial Pheromone
+                <input type="text" data-bind="value: settings.initialPheromone" class="form-control">
+              </label>
+            </div>
+            <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
+              <label>Sleep time between drawing
+                <input type="text" data-bind="value: settings.sleepTime" class="form-control">
+              </label>
+            </div>
           </div>
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Evaporation Rate
-              <input type="text" data-bind="value: settings.evaporationRate" class="form-control">
-            </label>
-          </div>
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Number Of Ants
-              <input type="text" data-bind="value: settings.numberOfAnts" class="form-control">
-            </label>
-          </div>
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Q
-              <input type="text" data-bind="value: settings.Q" class="form-control">
-            </label>
-          </div>
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Initial Pheromone
-              <input type="text" data-bind="value: settings.initialPheromone" class="form-control">
-            </label>
-          </div>
-          <div class="form-group col-xs-12 col-sm-4 col-md-3 col-md-lg-2">
-            <label>Visualize steps?
-              <input type="checkbox" data-bind="checked: settings.visualize" class="form-control">
-            </label>
-          </div>
+        </div>
+      </div>
+      <div data-bind="visible: progressValue() &gt; 0" class="row">
+        <div class="col-xs-12">
+          <div data-bind="progress: { value: progressValue, text: 'completed', textHidden: false, animated: true, striped: true }"></div>
         </div>
       </div>
       <div style="height: 90%" class="row">
         <div class="col-xs-12 col-sm-3">
-          <ul class="list-group">
-            <li class="list-group-item">
-              <h4>Solutions:</h4>
-            </li>
-            <li data-bind="visible: solutions().length == 0" class="list-group-item disabled">Non yet</li><!-- ko foreach: solutions -->
-            <li class="list-group-item">
-              Flow: <span data-bind="text: flow"></span>
-              Cost: <span data-bind="text: cost"></span>
-            </li><!-- /ko -->
-          </ul>
+          <div class="row form-group">
+            <button data-bind="click: function(){settings.visualize(!settings.visualize());}" class="btn btn-block btn-sm btn-info"><span class="pull-left"><span data-bind="visible: !settings.visualize()" class="glyphicon glyphicon-unchecked"></span> <span data-bind="visible: settings.visualize()" class="glyphicon glyphicon-check"></span> Visualize steps</span></button>
+          </div>
+          <div class="row">
+            <ul class="list-group">
+              <li class="list-group-item"><strong>Solutions:</strong></li>
+              <li data-bind="visible: solutions().length == 0" class="list-group-item disabled">Non yet</li><!-- ko foreach: solutions -->
+              <li class="list-group-item">
+                Flow: <span data-bind="text: flow"></span>
+                Cost: <span data-bind="text: cost"></span>
+              </li><!-- /ko -->
+            </ul>
+          </div>
         </div>
         <div style="height: 95%" class="col-xs-12 col-sm-9">
           <div id="cy"></div>

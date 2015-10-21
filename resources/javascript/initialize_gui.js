@@ -4,13 +4,18 @@ var viewModel = null;
 $(function(){ // on dom ready
   viewModel = {
       solutions: ko.observableArray(),
+    
+      showSettings: ko.observable(false),
+      progressValue: ko.observable( 0 ),
+      
       settings: {
-        numberOfIterations: ko.observable(200),
+        sleepTime         : ko.observable(300),
+        numberOfIterations: ko.observable(100),
         evaporationRate   : ko.observable(0.1),
         numberOfAnts      : ko.observable(6),
         Q                 : ko.observable(1.0),
         initialPheromone  : ko.observable(100000.0),
-        visualize         : ko.observable(false),
+        visualize         : ko.observable(true),
       }
   };
   

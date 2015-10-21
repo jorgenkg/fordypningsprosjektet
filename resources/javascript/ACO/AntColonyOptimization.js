@@ -1,8 +1,6 @@
 var ACO = function( settings ){
   // augment the settings parameter with predefined defaults
-  console.log(" pre", settings.visualize );
   this.settings = _.defaults( settings || {}, this.defaultSettings() );
-  console.log(" post", settings.visualize );
 };
 
 
@@ -12,129 +10,139 @@ ACO.prototype.defaultSettings = function(){
     evaporationRate   : 0.1,
     numberOfAnts      : 6,
     Q                 : 1.0,
-    initialPheromone  : 100000.0,
-    visualize         : false,
+    initialPheromone  : 100000.0
   };
 };
 
 
 ACO.prototype.maxFlow = function ( graph ) {
   var self = this;
+  var promiseFinished = Promise.defer();
   
   var ants        = this.generateAnts( this.settings.numberOfAnts );
   var edges       = graph.getEdges();
   
-  var candidateSolution = {};
   var epochSolution = {};
-  var globalSolution = {
+  var candidateSolution     = {};
+  var globalSolution    = {
     traveledEdges: [],
     flowAmount: -1,
     flowCost: Infinity
   };
   
-  var i = 0, j = 0;
-  
   // Initialize the pheromone levels
-  for( j=0; j < edges.length; j++){
-    edges[j].pheromone = this.settings.initialPheromone;
-  }
+  _.each( edges, function ( edge ) {
+    edge.pheromone = self.settings.initialPheromone;
+  });
   
   var epoch = function( ){
     // An iteration of the algorithm. This has to be defined as a function
     // rather than a loop in order to deaccelerate the rendering speed to 
     // a interpretable rate.
     
-    candidateSolution = {
+    epochSolution = {
       traveledEdges: [],
       flowAmount: -1,
       flowCost: Infinity
     };
     
-    for( j=0; j < ants.length; j++ ){
+    var passings = [];
+    
+    _.each( ants, function ( ant ) {
       // Let each ant construct a candidate solution
-      epochSolution = ants[j].move( graph );
+      candidateSolution = ant.move( graph );
       // Reset the book keeping variables
       graph.resetFlow();
       
-      candidateSolution = self.decideBestSolution( epochSolution, candidateSolution );
-    }
+      passings.push( candidateSolution.traveledEdges );
+      epochSolution = self.decideBestSolution( candidateSolution, epochSolution );
+    });
     
-    globalSolution = self.decideBestSolution( candidateSolution, globalSolution );
+    globalSolution = self.decideBestSolution( epochSolution, globalSolution );
     
     // RENDERING
-    if( self.settings.visualize ){
-      var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
-      for( j=0; j < edges.length; j++){
-        if( !_.isUndefined( countFlow[edges[j].id] )){
-          edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-          if( globalSolution !== candidateSolution){
-            // Only update the graphics if the rendered solution actually has changed
-            edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+    if( viewModel.settings.visualize() ){
+      var countFlow     = _.countBy( globalSolution.traveledEdges, "id");
+      var countPassings = _.countBy(_.flatten( passings ), "id");
+      
+      _.each( edges, function ( edge ) {
+        var expended  = _.isUndefined( countFlow[edge.id] ) ? 0 : countFlow[edge.id];
+        var wayfarers = _.isUndefined( countPassings[edge.id] ) ? 0 : countPassings[edge.id];
+        edge.cyEdge.data("label", expended +" of "+edge.capacity+" "+edge.pheromone.toFixed(2)+" "+ wayfarers);
+        
+        if( globalSolution !== epochSolution){
+          // Only update the graphics if the rendered solution actually has changed
+          if( !_.isUndefined( countFlow[edge.id] ) ){
+            edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
           }
-        }
-        else {
-          edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-          if( globalSolution !== candidateSolution){
-            // Only update the graphics if the rendered solution actually has changed
-            edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+          else {
+            edge.cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
           }
+          
         }
-      }
+      });
       //END
     }
     
-    
-    for( j=0; j < edges.length; j++){
+    _.each( edges, function ( edge ) {
       // Evaporate some of the pheromones
-      edges[j].pheromone *= (1 - self.settings.evaporationRate);
-    }
+      edge.pheromone *= (1 - self.settings.evaporationRate);
+    });
     
-    if( candidateSolution.flowAmount > 0 ){
+    if( epochSolution.flowAmount > 0 ){
       // Let only this epoch's most fit ant deposit pheromones and deposit only once per edge, even 
       // though we might have traversed it multiple times.
-      self.depositePheromone( _.uniq(candidateSolution.traveledEdges), self.settings.Q/candidateSolution.flowCost );
+      self.depositePheromone( _.uniq(epochSolution.traveledEdges), self.settings.Q/epochSolution.flowCost );
     }
     
     self.adjustPheromoneLevels( graph, globalSolution.flowCost, self.settings.evaporationRate, 0.5 );
   };
   
-  if( self.settings.visualize ){
-    for( j=0; j < edges.length; j++){
-      // Initialize the visualization labels
-      edges[j].cyEdge.data("label", "0 of "+edges[j].capacity ); // currently not yet using any flow
-    }
-  }
   
   var counter = 0;
-  var notifier = $.notify('Running...', {type: "info", progress: 0, showProgressbar: true, allow_dismiss: false});
-  var timer = setInterval( function(){
-    epoch( );
-    counter += 1;
-    notifier.update({"progress": _.floor(100.0*counter / self.settings.numberOfIterations)});
-    if( counter >= self.settings.numberOfIterations ){
-      var results = "Ran for "+counter+" iterations. Flow: " + globalSolution.flowAmount + " Cost: " + globalSolution.flowCost;
-      notifier.update({"type": "success", "message": results, showProgressbar: false});
-      clearInterval( timer );
-      viewModel.solutions.unshift({ flow: globalSolution.flowAmount, cost: globalSolution.flowCost });
-      console.log( globalSolution );
+  
+  var run = function run( last_draw ){
+    if( _.isUndefined(last_draw) ){
+        // last_draw is undefined = this is the first call to run()
+        last_draw = new Date().getMilliseconds();
+    }
+    
+    
+    var dt = Math.max(new Date().getMilliseconds() - last_draw, 0);       // time passed since last draw
+    var afterTime = new Date().getMilliseconds();
+    var sleep = Math.max(parseInt(viewModel.settings.sleepTime()) - dt, 0);
+    
+    Promise
+      .delay( viewModel.settings.visualize() ? sleep : 0 )
+      .then(function () {
+        epoch( );
       
-      // RENDERING
-      var countFlow = _.countBy( globalSolution.traveledEdges, function( edge ){ return edge.id; });
-      for( j=0; j < edges.length; j++){
-        if( !_.isUndefined( countFlow[edges[j].id] )){
-          edges[j].cyEdge.data("label", countFlow[edges[j].id]+" of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-          edges[j].cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+        counter += 1;
+
+        viewModel.progressValue( _.floor(100.0*counter / self.settings.numberOfIterations) );
+
+        if( counter < self.settings.numberOfIterations ){
+          // Continue with another iteration
+          run( afterTime );
         }
-        else {
-          edges[j].cyEdge.data("label", "0 of "+edges[j].capacity+" "+edges[j].pheromone.toFixed(2) );
-          edges[j].cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+        else{
+          // We have finished the specified number of interations
+        
+          // Resolve the promise with our discovered solution
+          promiseFinished.resolve( globalSolution );
+        
+          // Help the garbage collector
+          epoch = null;
+          for (var i = 0; i < ants.length; i++) {
+            ants[i] = null;
+          }
         }
-      }
-      //END
-    }
-    else{
-    }
-  }, self.settings.visualize ? 40 : 0);
+      });
+  };
+  
+  run();
+  
+  return promiseFinished.promise;
 };
 
 

@@ -1,5 +1,10 @@
 $(function(){ // on dom ready
-  $("#restartSearch").on("click", function(){
+  $("#settingsButton").on("click", function(){
+    viewModel.showSettings( !viewModel.showSettings() );
+  });
+  
+  
+  $("#startSearchButton").on("click", function(){
     var cyNodes     = cy.nodes(); // GUI nodes
     var cyEdges     = cy.edges(); // GUI edges
     
@@ -37,14 +42,47 @@ $(function(){ // on dom ready
       evaporationRate   : parseFloat(viewModel.settings.evaporationRate()),
       numberOfAnts      : parseInt(viewModel.settings.numberOfAnts()),
       Q                 : parseFloat(viewModel.settings.Q()),
-      initialPheromone  : parseFloat(viewModel.settings.initialPheromone()),
-      visualize         : viewModel.settings.visualize()
+      initialPheromone  : parseFloat(viewModel.settings.initialPheromone())
     };
     
-    console.log( configuration );
+    var graph = new Graph( graphNodes );
+    var aco = new ACO( configuration ); // initialize a colony and start the search. 
     
-    new ACO( configuration ) // initialize a colony
-      .maxFlow( new Graph( graphNodes ) ); // start the search. This is async due to javascript rendering.
+    _.each( graph.getEdges(), function ( edge ) {
+      // Initialize the visualization labels
+      edge.cyEdge.data("label", "0 of "+edge.capacity );
+    });
+    
+    aco.maxFlow( graph ) // Returns a bluebird promise.
+      .then(function ( solution ) {
+        console.log( "Solution:", solution );
+      
+        // Update the solution list in the GUI
+        viewModel.solutions.unshift({ flow: solution.flowAmount, cost: solution.flowCost });
+      
+        // RENDERING
+        var countFlow     = _.countBy( solution.traveledEdges, "id");
+      
+        _.each( graph.getEdges(), function ( edge ) {
+          var expended  = _.isUndefined( countFlow[edge.id] ) ? 0 : countFlow[edge.id];
+          edge.cyEdge.data("label", expended +" of "+edge.capacity+" "+edge.pheromone.toFixed(2));
+        
+          if( !_.isUndefined( countFlow[edge.id] ) ){
+            edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });
+          }
+          else {
+            edge.cyEdge.css({ 'line-color': '#ddd', 'target-arrow-color': '#ddd' });
+          }
+        });
+        //END
+        
+        setTimeout(function () {
+          viewModel.progressValue( 0 );
+        }, 1000);
+      })
+      .catch(function () {
+        console.error( arguments );
+      });
   });
   
   $("#clearResults").on("click", function(){
