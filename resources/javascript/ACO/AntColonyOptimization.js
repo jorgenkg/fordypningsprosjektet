@@ -241,10 +241,13 @@ ACO.prototype.depositePheromone = function( traveledEdges, quantity ){
 ACO.prototype.adjustPheromoneLevels = function( graph, traveledEdges, cost, evaporationRate, pBest ){
   pBest = _.isUndefined(pBest) ? 0.5 : pBest; // define the variable if it wasnt passed as a param
   
-  var maxVisibiliy = _.max( traveledEdges, "visibility" );
+  var maxVisibiliy = _.chain( traveledEdges )
+          .pluck( "visibility" )
+          .max( traveledEdges )
+          .value();
   
   var numerOfNodes = graph.numerOfNodes();
-  var maxPheromone = 1.5 * maxVisibiliy; //2.0 / (cost * evaporationRate);
+  var maxPheromone = 1.5 * maxVisibiliy; //1.0 / (cost * evaporationRate);
   var minPheromone = maxPheromone * (1.0 - Math.pow(pBest, 1.0/numerOfNodes) ) / ((numerOfNodes/2.0-1)*Math.pow(pBest, 1.0/numerOfNodes));
   
   _.forEach( graph.getEdges(), function ( edge ) {

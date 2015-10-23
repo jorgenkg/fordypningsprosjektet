@@ -12,7 +12,7 @@ Ant.prototype.move = function( graph ){
   var traveledEdges = [];
   
   while( currentPosition.hasValidEdges( tabuNodes ) || currentPosition !== graph.startNode() ){
-    nextEdge = this.chooseNextEdge( currentPosition, tabuNodes );
+    nextEdge = this.chooseNextEdge( currentPosition, tabuNodes, traveledEdges );
     
     nextEdge.expended += 1; // we are currently using an unit of the capacity
     traveledEdges.push( nextEdge );
@@ -69,11 +69,9 @@ Ant.prototype.reverseMovement = function( position, traveledEdges, tabuNodes ){
 };
 
 
-Ant.prototype.chooseNextEdge = function( node, tabuNodes ){
+Ant.prototype.chooseNextEdge = function( node, tabuNodes, traveledEdges ){
   var alpha = 1, beta = 1;
   var validEdges = node.getValidEdges( tabuNodes );
-  
-  
   
   if( validEdges.length === 0 )
     throw "No valid edges to travel";
@@ -86,6 +84,32 @@ Ant.prototype.chooseNextEdge = function( node, tabuNodes ){
     var probability = Math.pow(edge.pheromone, alpha) * Math.pow(edge.capacity, beta) / divisor;
     return [probability, edge];
   });
+  
+  var isWalkingAGoodPath = _.chain(traveledEdges)
+        .takeRight( 2 )
+        .pluck( "pheromone" )
+        .thru(function ( values ) {
+          return (_.sum( values ) / values.length) === 1;
+        })
+        .value();
+  var isFacingAGoodPath = _.any( validEdges, function (edge) {
+    return edge.pheromone === 1.0;
+  });
+  
+  if( isFacingAGoodPath && isWalkingAGoodPath && Math.random() < 0 ){
+    
+    // behave suboptimally
+    var maxp = _.max( s, function ( param ) {
+      return param[0];
+    })[0];
+    var minp = _.min( s, function ( param ) {
+      return param[0];
+    })[0];
+    
+    s = _.map( s, function ( param ) {
+      return [ maxp - param[0] + minp, param[1]];
+    });
+  }
   
   var chosen = weightedSelect( s );
   
