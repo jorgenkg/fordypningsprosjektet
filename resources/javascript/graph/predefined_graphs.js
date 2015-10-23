@@ -1,11 +1,11 @@
 var predefined_graph1 = {
     nodes: [
-		{ data: { id: '0' } },
-		{ data: { id: '1' } },
-		{ data: { id: '2' } },
-		{ data: { id: '3' } },
-		{ data: { id: '4' } },
-		{ data: { id: '5' } },
+      {data: {id: "0"}, position: {x: 389.6328642753338, y: 30}},
+      {data: {id: "1"}, position: {x: 276.58009882015165, y: 149.7499999999999}},
+      {data: {id: "2"}, position: {x: 514.4193472543898, y: 145.93058455114806}},
+      {data: {id: "3"}, position: {x: 274.9367281032456, y: 274.6229686927509}},
+      {data: {id: "4"}, position: {x: 520.2426132150894, y: 276.1006309542811}},
+      {data: {id: "5"}, position: {x: 406.5890825213592, y: 387.25205839134594}}
     ],
     edges: [
 		{ data: { id: '0>1', weight: 16, source: '0', target: '1' } },

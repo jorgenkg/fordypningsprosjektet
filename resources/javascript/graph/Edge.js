@@ -20,5 +20,5 @@ Edge.prototype.reset = function () {
 };
 
 Edge.prototype.cost = function () {
-  return 1;
+  return 1.0;
 };

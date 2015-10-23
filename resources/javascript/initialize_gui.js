@@ -1,20 +1,28 @@
 var cy = null;
 var viewModel = null;
+var flowChart = null;
+var costChart = null;
 
 $(function(){ // on dom ready
+  var $overlay = $("#flowGraphCanvas");
+  $overlay.attr("width", $overlay.parent().outerWidth());
+  $overlay = $("#costGraphCanvas");
+  $overlay.attr("width", $overlay.parent().outerWidth());
+  
   viewModel = {
       solutions: ko.observableArray(),
     
+      showGraphs: ko.observable(true),
       showSettings: ko.observable(false),
       progressValue: ko.observable( 0 ),
       
       settings: {
-        sleepTime         : ko.observable(300),
+        sleepTime         : ko.observable(30),
         numberOfIterations: ko.observable(100),
         evaporationRate   : ko.observable(0.1),
         numberOfAnts      : ko.observable(6),
         Q                 : ko.observable(1.0),
-        initialPheromone  : ko.observable(100000.0),
+        initialPheromone  : ko.observable(1.0),
         visualize         : ko.observable(true),
       }
   };
@@ -45,4 +53,8 @@ $(function(){ // on dom ready
       roots: '#0'
     }
   });
+  
+  
+  flowChart = new Chart( $("#flowGraphCanvas").get(0).getContext("2d") );
+  costChart = new Chart( $("#costGraphCanvas").get(0).getContext("2d") );
 }); // on dom ready
