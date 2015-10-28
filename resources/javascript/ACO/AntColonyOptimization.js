@@ -200,7 +200,6 @@ ACO.prototype.maxFlow = function ( graph ) {
         
           // Help the garbage collector
           epoch = null;
-          
           for (var i = 0; i < ants.length; i++) {
             ants[i] = null;
           }
@@ -259,7 +258,7 @@ ACO.prototype.adjustPheromoneLevels = function( graph, traveledEdges, cost, evap
           .value();
   
   var numerOfNodes = graph.numerOfNodes();
-  var maxPheromone = 1.2 * maxVisibiliy; //1.0 / (cost * evaporationRate);
+  var maxPheromone = 1.0 / (cost * evaporationRate);
   var minPheromone = maxPheromone * (1.0 - Math.pow(pBest, 1.0/numerOfNodes) ) / ((numerOfNodes/2.0-1)*Math.pow(pBest, 1.0/numerOfNodes));
   
   _.forEach( graph.getEdges(), function ( edge ) {
