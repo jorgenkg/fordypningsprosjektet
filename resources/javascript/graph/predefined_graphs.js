@@ -19,7 +19,24 @@ var predefined_graph1 = {
 		{ data: { id: '4>3', weight: 7, source: '4', target: '3' } },
 		{ data: { id: '4>5', weight: 4, source: '4', target: '5' } },
     ]
-}; 
+};
+
+var predefined_graph11 = {
+    nodes: [
+      { data: { id: "0" }, position: { x: 389.6328642753338, y: 30 } },
+      { data: { id: "1" }, position: { x: 276.58009882015165, y: 149.7499999999999 } },
+      { data: { id: "2" }, position: { x: 514.4193472543898, y: 145.93058455114806 } },
+      { data: { id: "3" }, position: { x: 274.9367281032456, y: 274.6229686927509 } },
+    ],
+    edges: [
+		{ data: { id: '0>1', weight: 16, source: '0', target: '1' } },
+		{ data: { id: '0>2', weight: 13, source: '0', target: '2' } },
+		{ data: { id: '1>2', weight: 10, source: '1', target: '2' } },
+		{ data: { id: '1>3', weight: 12, source: '1', target: '3' } },
+		{ data: { id: '2>1', weight: 4, source: '2', target: '1' } },
+		{ data: { id: '2>3', weight: 11, source: '2', target: '3' } },
+    ]
+};
 
 var predefined_graph2 = {
     nodes: [
