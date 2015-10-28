@@ -43,7 +43,7 @@ Ant.prototype.move = function( graph ){
     return edge.source === graph.startNode() ? 1 : 0;
   });
   
-  var flowCost = _.sum( traveledEdges, function( edge ){
+  var flowCost = _.sum( _.uniq(traveledEdges), function( edge ){
     return edge.cost();
   });
   
@@ -70,46 +70,38 @@ Ant.prototype.reverseMovement = function( position, traveledEdges, tabuNodes ){
 
 
 Ant.prototype.chooseNextEdge = function( node, tabuNodes, traveledEdges ){
-  var alpha = 1, beta = 1;
+  var alpha = 1.0, beta = 1.0;
   var validEdges = node.getValidEdges( tabuNodes );
   
   if( validEdges.length === 0 )
     throw "No valid edges to travel";
   
+  //if( Math.random() < 0.3 ){
+  //  // Check if we should act suboptimally
+  //  var isWalkingAGoodPath = _.chain(traveledEdges)
+  //        .takeRight( 2 )
+  //        .pluck( "maxed" )
+  //        .all()
+  //        .value();
+  //  var isFacingAGoodPath = _.chain( validEdges )
+  //        .pluck("maxed")
+  //        .any()
+  //        .value();
+  //  
+  //  if( isFacingAGoodPath && isWalkingAGoodPath ){
+  //    alpha = beta / 2;
+  //  }
+  //}
+  
   var divisor = _.sum( validEdges, function ( edge ) {
-    return Math.pow(edge.pheromone, alpha) * Math.pow(edge.capacity, beta);
+    return Math.pow(edge.pheromone, alpha) * Math.pow(edge.visibility(), beta);
   });
   
   var s = _.map( validEdges, function ( edge ) {
-    var probability = Math.pow(edge.pheromone, alpha) * Math.pow(edge.capacity, beta) / divisor;
+    var probability = Math.pow(edge.pheromone, alpha) * Math.pow(edge.visibility(), beta) / divisor;
     return [probability, edge];
   });
   
-  var isWalkingAGoodPath = _.chain(traveledEdges)
-        .takeRight( 2 )
-        .pluck( "pheromone" )
-        .thru(function ( values ) {
-          return (_.sum( values ) / values.length) === 1;
-        })
-        .value();
-  var isFacingAGoodPath = _.any( validEdges, function (edge) {
-    return edge.pheromone === 1.0;
-  });
-  
-  if( isFacingAGoodPath && isWalkingAGoodPath && Math.random() < 0 ){
-    
-    // behave suboptimally
-    var maxp = _.max( s, function ( param ) {
-      return param[0];
-    })[0];
-    var minp = _.min( s, function ( param ) {
-      return param[0];
-    })[0];
-    
-    s = _.map( s, function ( param ) {
-      return [ maxp - param[0] + minp, param[1]];
-    });
-  }
   
   var chosen = weightedSelect( s );
   

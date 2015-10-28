@@ -17,13 +17,13 @@ $(function(){ // on dom ready
       progressValue: ko.observable( 0 ),
       
       settings: {
-        sleepTime         : ko.observable(30),
+        sleepTime         : ko.observable(1),
         numberOfIterations: ko.observable(100),
         evaporationRate   : ko.observable(0.1),
-        numberOfAnts      : ko.observable(6),
+        numberOfAnts      : ko.observable(7),
         Q                 : ko.observable(1.0),
         initialPheromone  : ko.observable(1.0),
-        visualize         : ko.observable(true),
+        visualize         : ko.observable(false),
       }
   };
   
