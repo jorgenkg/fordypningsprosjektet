@@ -61,7 +61,9 @@ Ant.prototype.reverseMovement = function( position, traveledEdges, tabuNodes ){
   
   while( !position.hasValidEdges( tabuNodes ) && !position.isStartNode() ){
     previousEdge = traveledEdges.pop();
-    previousEdge.backtracked = true;
+    previousEdge.expended -= 1;
+    previousEdge.sink.backtracked(); // notify this node that we had to backtrack from it
+    
     position = previousEdge.source;
   }
   
@@ -76,7 +78,7 @@ Ant.prototype.chooseNextEdge = function( node, tabuNodes, traveledEdges ){
   if( validEdges.length === 0 )
     throw "No valid edges to travel";
   
-  //if( Math.random() < 0.3 ){
+  //if( Math.random() < 0.1 ){
   //  // Check if we should act suboptimally
   //  var isWalkingAGoodPath = _.chain(traveledEdges)
   //        .takeRight( 2 )

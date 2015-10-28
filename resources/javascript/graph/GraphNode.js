@@ -21,6 +21,13 @@ GraphNode.prototype.isStartNode = function () {
   return this.isStart;
 };
 
+GraphNode.prototype.backtracked = function () {
+  _.forEach( this.edges, function ( edge ) {
+    // mark each edge as backtracked
+    edge.backtracked = true;
+  });
+};
+
 GraphNode.prototype.hasValidEdges = function ( tabuNodes ) {
   return _.any( this.edges, function ( edge ) {
     return !edge.backtracked && (edge.capacity - edge.expended) > 0 && !_.contains( tabuNodes, edge.sink );

@@ -22,7 +22,7 @@ $(function(){ // on dom ready
         evaporationRate   : ko.observable(0.1),
         numberOfAnts      : ko.observable(7),
         Q                 : ko.observable(1.0),
-        initialPheromone  : ko.observable(1.0),
+        initialPheromone  : ko.observable(10000.0),
         visualize         : ko.observable(false),
       }
   };
@@ -49,7 +49,7 @@ $(function(){ // on dom ready
     elements: predefined_graph1,
   
     layout: {
-      name: "circle",
+      name: "preset",
       roots: '#0'
     }
   });
