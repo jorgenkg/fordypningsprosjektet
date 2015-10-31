@@ -46,10 +46,10 @@ $(function(){ // on dom ready
           'content': 'data(label)'
         }),
   
-    elements: predefined_graph1,
+    elements: predefined_graph2,
   
     layout: {
-      name: "preset",
+      name: "circle",
       roots: '#0'
     }
   });

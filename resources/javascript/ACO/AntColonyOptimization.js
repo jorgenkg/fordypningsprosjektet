@@ -139,7 +139,7 @@ ACO.prototype.maxFlow = function ( graph ) {
     //  self.depositePheromone( epochSolution.traveledEdges, self.settings.Q/epochSolution.flowCost );
     //}
     
-    self.adjustPheromoneLevels( graph, globalSolution.traveledEdges, globalSolution.flowCost, self.settings.evaporationRate, 0.2 );
+    //self.adjustPheromoneLevels( graph, globalSolution.traveledEdges, globalSolution.flowCost, self.settings.evaporationRate, 0.2 );
   };
   
   
@@ -174,7 +174,7 @@ ACO.prototype.maxFlow = function ( graph ) {
           _.each( edges, function ( edge ) {
             var expended  = _.isUndefined( countFlow[edge.id] ) ? 0 : countFlow[edge.id];
             var wayfarers = _.isUndefined( countPassings[edge.id] ) ? 0 : countPassings[edge.id];
-            edge.cyEdge.data("label", expended +" of "+edge.capacity+" "+edge.pheromone.toFixed(2)+" "+ wayfarers);
+            edge.cyEdge.data("label", expended +"/"+edge.capacity);
             
             if( !_.isUndefined( countFlow[edge.id] ) ){
               edge.cyEdge.css({ 'line-color': 'red', 'target-arrow-color': 'red' });

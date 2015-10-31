@@ -72,7 +72,7 @@ Ant.prototype.reverseMovement = function( position, traveledEdges, tabuNodes ){
 
 
 Ant.prototype.chooseNextEdge = function( node, tabuNodes, traveledEdges ){
-  var alpha = 1.0, beta = 1.0;
+  var alpha = 1.0, beta = 0.0;
   var validEdges = node.getValidEdges( tabuNodes );
   
   if( validEdges.length === 0 )
@@ -96,11 +96,11 @@ Ant.prototype.chooseNextEdge = function( node, tabuNodes, traveledEdges ){
   //}
   
   var divisor = _.sum( validEdges, function ( edge ) {
-    return Math.pow(edge.pheromone, alpha) * Math.pow(edge.visibility(), beta);
+    return edge.pheromone;
   });
   
   var s = _.map( validEdges, function ( edge ) {
-    var probability = Math.pow(edge.pheromone, alpha) * Math.pow(edge.visibility(), beta) / divisor;
+      var probability = edge.pheromone / divisor;
     return [probability, edge];
   });
   

@@ -26,5 +26,5 @@ Edge.prototype.visibility = function () {
 
 
 Edge.prototype.cost = function () {
-  return 1.0 + this.capacity - this.expended;
+  return 1.0 + this.expended;
 };
