@@ -19,10 +19,10 @@ $(function(){ // on dom ready
       settings: {
         sleepTime         : ko.observable(1),
         numberOfIterations: ko.observable(100),
-        evaporationRate   : ko.observable(0.1),
-        numberOfAnts      : ko.observable(7),
+        evaporationRate   : ko.observable(0.6),
+        numberOfAnts      : ko.observable(10),
         Q                 : ko.observable(1.0),
-        initialPheromone  : ko.observable(10000.0),
+        initialPheromone  : ko.observable(1.0),
         visualize         : ko.observable(false),
       }
   };
@@ -46,7 +46,7 @@ $(function(){ // on dom ready
           'content': 'data(label)'
         }),
   
-    elements: predefined_graph2,
+    elements: predefined_graph4,
   
     layout: {
       name: "circle",
